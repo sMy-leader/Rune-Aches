@@ -1,0 +1,21 @@
+id,name,category,energy_cost,base_value,max_level,tags,params,desc
+T1,定时脉冲,Trigger,0,0.8,2,stable|filler,interval=0.8,每 0.8 秒自动发动一次
+T2,击杀回响,Trigger,2,1,2,snowball|swarm,proc=kill,每次击杀时发动
+T3,命中传导,Trigger,2,0.25,2,highfreq,chance=0.25,每次命中 25% 概率发动
+T4,冲刺余波,Trigger,1,1,2,mobility,distance=3,冲刺结束后发动
+T5,受伤反击,Trigger,1,1,2,risk,cooldown=1,受到伤害时发动，内置 1 秒冷却
+T6,常驻光环,Trigger,2,1,2,aura,radius=4,效果以自身为中心持续生效
+E1,直射弹,Effect,3,12,2,core,speed=20,朝瞄准方向发射一枚弹，伤害 12，弹速 20
+E2,散射,Effect,4,8,2,close,angle=45|count=5,扇形 45 度发射 5 枚弹，每枚伤害 8
+E3,环绕球,Effect,4,10,2,orbit,count=2,两颗法球绕自身旋转，触碰伤害 10
+E4,地雷,Effect,4,25,2,zone,radius=3,在脚下放置地雷，触发后 3 米范围伤害 25
+E5,冲刺斩,Effect,3,20,2,mobility,distance=4,冲刺路径造成 20 伤害
+E6,光束,Effect,5,18,2,antishield,charge=0.5,蓄力 0.5 秒发射贯穿光束，伤害 18
+E7,召唤物,Effect,5,6,2,summon,duration=8,召唤哨戒 8 秒，每秒伤害 6
+M1,分裂,Modifier,3,0.6,2,chain,count=3|inherit=0.6,弹道命中或消亡时分裂 3 枚，每枚继承 60% 伤害
+M2,弹射,Modifier,3,2,2,chain,bounces=2|falloff=0.2,弹射至最近敌人 2 次，每次减少 20% 伤害
+M3,穿透,Modifier,2,2,2,antiswarm,pierce=2,额外穿透 2 个目标
+M4,燃烧,Modifier,2,4,2,dot,dps=4|duration=3,附加燃烧每秒 4 伤害持续 3 秒
+M5,冰冻,Modifier,3,0.4,2,control,duration=2|slow=0.4|stacks=3,减速 40% 持续 2 秒，叠 3 层冻结
+M6,爆炸,Modifier,3,15,2,chain,radius=2.5,命中或击杀时 2.5 米爆炸，伤害 15
+M7,追踪,Modifier,3,180,2,aimassist,turnrate=180,弹道自动索敌，转向速率 180 度每秒

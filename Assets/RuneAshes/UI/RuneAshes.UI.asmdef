@@ -1,0 +1,19 @@
+{
+    "name": "RuneAshes.UI",
+    "rootNamespace": "RuneAshes.UI",
+    "references": [
+        "RuneAshes.Data",
+        "RuneAshes.Framework",
+        "RuneAshes.Gameplay",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

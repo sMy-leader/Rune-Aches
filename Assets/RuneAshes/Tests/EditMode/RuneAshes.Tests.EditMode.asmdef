@@ -1,0 +1,25 @@
+{
+    "name": "RuneAshes.Tests.EditMode",
+    "rootNamespace": "RuneAshes.Tests",
+    "references": [
+        "RuneAshes.Data",
+        "RuneAshes.Framework",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
