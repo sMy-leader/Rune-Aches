@@ -66,6 +66,11 @@
 *.hlsl filter=lfs diff=lfs merge=lfs -text
 *.shadergraph filter=lfs diff=lfs merge=lfs -text
 *.cginc filter=lfs diff=lfs merge=lfs -text
+*.controller filter=lfs diff=lfs merge=lfs -text
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.prefab filter=lfs diff=lfs merge=lfs -text
+*.mask filter=lfs diff=lfs merge=lfs -text
+*.tga filter=lfs diff=lfs merge=lfs -text
 *.cs !text !filter !merge !diff
 *.md !text !filter !merge !diff
 *.meta !text !filter !merge !diff

@@ -25,6 +25,9 @@ namespace RuneAshes.Gameplay
         private readonly Collider[] _hits = new Collider[16];
         private readonly Dictionary<int, float> _lastHitTime = new Dictionary<int, float>();
 
+        /// <summary>施法者本体，命中时跳过，避免环绕球打自己。</summary>
+        private IDamageable _owner;
+
         /// <summary>
         /// 初始化并挂到施法者身下。用 localPosition=0 让它跟随玩家移动，
         /// 所以球员永远围着玩家转，而不是围着施法瞬间的位置转。
@@ -34,6 +37,7 @@ namespace RuneAshes.Gameplay
             _spec = spec;
             _age = 0f;
             _angle = 0f;
+            _owner = follow != null ? follow.GetComponentInParent<IDamageable>() : null;
             if (follow != null)
             {
                 transform.SetParent(follow, false);
@@ -74,7 +78,7 @@ namespace RuneAshes.Gameplay
             for (var i = 0; i < count; i++)
             {
                 var damageable = _hits[i].GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.IsAlive)
+                if (damageable == null || !damageable.IsAlive || ReferenceEquals(damageable, _owner))
                 {
                     continue;
                 }

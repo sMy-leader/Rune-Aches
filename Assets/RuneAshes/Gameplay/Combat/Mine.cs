@@ -59,7 +59,8 @@ namespace RuneAshes.Gameplay
             for (var i = 0; i < count; i++)
             {
                 var damageable = _hits[i].GetComponentInParent<IDamageable>();
-                if (damageable != null && damageable.IsAlive)
+                if (damageable != null && damageable.IsAlive &&
+                    (_world == null || !_world.IsOwner(damageable)))
                 {
                     Explode();
                     return;

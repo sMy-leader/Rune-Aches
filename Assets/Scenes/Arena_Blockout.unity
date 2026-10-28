@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 121840688}
   - component: {fileID: 121840687}
   - component: {fileID: 121840686}
+  - component: {fileID: 121840692}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -255,13 +256,26 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
+  m_Height: 2.1
+  m_Radius: 0.4
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 1.05, z: 0}
+--- !u!114 &121840692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121840684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ae5e1bc38dcad94f888b08e7afe2599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.PlayerHealth
+  _maxHealth: 100
 --- !u!1 &178724599
 GameObject:
   m_ObjectHideFlags: 0
@@ -598,6 +612,84 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &402181739 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1164882959522560, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+  m_PrefabInstance: {fileID: 1283177506}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &402181742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 402181739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25865c635969d2142ab401b85011a8ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.EnemyBrain
+  _detectRange: 12
+  _attackRange: 2.2
+  _moveSpeed: 2.5
+  _turnSpeed: 540
+  _attackCooldown: 1.2
+  _windupDuration: 0.15
+  _hitDelay: 0.5
+  _recoverDuration: 0.8
+  _damage: 15
+  _hitReach: 2.8
+  _hitStunDuration: 0.25
+--- !u!114 &402181743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 402181739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6849cb9d3d732964292e182420793ed5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.EnemyAnimatorDriver
+--- !u!114 &402181744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 402181739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b97479d4eec9cb4fab7b9bf23a6dc21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.EnemyActor
+  _maxHealth: 300
+--- !u!143 &402181745
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 402181739}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2.5
+  m_Radius: 0.7
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1.25, z: 0}
 --- !u!1 &421508564
 GameObject:
   m_ObjectHideFlags: 0
@@ -628,6 +720,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 818928939}
+  - {fileID: 1234507377}
   m_Father: {fileID: 121840685}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &509860796
@@ -1477,7 +1570,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &962959922
 Transform:
   m_ObjectHideFlags: 0
@@ -2041,6 +2134,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1234507375 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6575731476201566264, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+  m_PrefabInstance: {fileID: 1941050697}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1234507377 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+  m_PrefabInstance: {fileID: 1941050697}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1234507378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234507375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf9872dee271504099824edd8ff0880, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.PlayerAnimatorDriver
 --- !u!1 &1235980131
 GameObject:
   m_ObjectHideFlags: 0
@@ -2170,6 +2285,92 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1283177506
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1164882959522560, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_Name
+      value: Troll
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.0358834
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.235
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.3346393
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4025683094734952, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95017676142295468, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 0cfc1192bcb43473b9370499460a77cf, type: 2}
+    - target: {fileID: 114041171683636942, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: showShapes
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114041171683636942, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: showPresets
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114041171683636942, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: showScripting
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 114041171683636942, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1164882959522560, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 402181745}
+    - targetCorrespondingSourceObject: {fileID: 1164882959522560, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 402181744}
+    - targetCorrespondingSourceObject: {fileID: 1164882959522560, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 402181743}
+    - targetCorrespondingSourceObject: {fileID: 1164882959522560, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 402181742}
+  m_SourcePrefab: {fileID: 100100000, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
 --- !u!1 &1534027424
 GameObject:
   m_ObjectHideFlags: 0
@@ -2538,6 +2739,70 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1941050697
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 421508565}
+    m_Modifications:
+    - target: {fileID: 498294855887548664, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 24947c0f23a64a746a01a0da1b01aa72, type: 2}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5767528223267695234, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6575731476201566264, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      propertyPath: m_Name
+      value: Hu_F_Magician_Bl
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6575731476201566264, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1234507378}
+  m_SourcePrefab: {fileID: 100100000, guid: ccafbb7884d9cc94aa59ee923565f192, type: 3}
 --- !u!1 &2142382305
 GameObject:
   m_ObjectHideFlags: 0
@@ -2673,3 +2938,4 @@ SceneRoots:
   - {fileID: 121840685}
   - {fileID: 1058025732}
   - {fileID: 1534027426}
+  - {fileID: 1283177506}

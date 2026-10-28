@@ -53,6 +53,30 @@ namespace RuneAshes.Gameplay
             get { return _aimDirection; }
         }
 
+        /// <summary>当前移动输入（-1~1）。动画驱动用它算本地 MoveX/MoveY。</summary>
+        public Vector2 MoveInput
+        {
+            get { return _input != null ? _input.Move : Vector2.zero; }
+        }
+
+        /// <summary>普通移动速度。动画用 HorizontalSpeed / MoveSpeed 得到 0~1 的混合权重。</summary>
+        public float MoveSpeed
+        {
+            get { return _moveSpeed; }
+        }
+
+        /// <summary>当前水平速度（含冲刺）。</summary>
+        public float HorizontalSpeed
+        {
+            get { return new Vector2(_horizontalVelocity.x, _horizontalVelocity.z).magnitude; }
+        }
+
+        /// <summary>瞄准挂点。动画模型挂在它下面，所以它也是角色的朝向。</summary>
+        public Transform AimPivot
+        {
+            get { return _aimPivot; }
+        }
+
         public bool IsDashing
         {
             get { return _isDashing; }

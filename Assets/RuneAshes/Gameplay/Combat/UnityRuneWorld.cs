@@ -25,6 +25,23 @@ namespace RuneAshes.Gameplay
         private readonly List<Collider> _uniqueHits = new List<Collider>(64);
         private readonly Collider[] _overlap = new Collider[64];
 
+        /// <summary>
+        /// 施法者自己的 IDamageable。所有命中查询都要排除它，
+        /// 否则玩家发射的弹丸出生在脚下、第一帧就会命中自己。
+        /// </summary>
+        private IDamageable _owner;
+
+        private void Awake()
+        {
+            _owner = GetComponent<IDamageable>();
+        }
+
+        /// <summary>弹丸/环绕球/地雷用它排除施法者本体。</summary>
+        public bool IsOwner(IDamageable damageable)
+        {
+            return damageable != null && ReferenceEquals(damageable, _owner);
+        }
+
         public void SpawnProjectile(ProjectileSpec spec)
         {
             var projectile = GetProjectile();
@@ -99,7 +116,7 @@ namespace RuneAshes.Gameplay
             for (var i = 0; i < count; i++)
             {
                 var damageable = _overlap[i].GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.IsAlive)
+                if (damageable == null || !damageable.IsAlive || IsOwner(damageable))
                 {
                     continue;
                 }
@@ -130,7 +147,8 @@ namespace RuneAshes.Gameplay
             {
                 var collider = _overlap[i];
                 var damageable = collider.GetComponentInParent<IDamageable>();
-                if (damageable == null || !damageable.IsAlive || _uniqueHits.Contains(collider))
+                if (damageable == null || !damageable.IsAlive || IsOwner(damageable) ||
+                    _uniqueHits.Contains(collider))
                 {
                     continue;
                 }

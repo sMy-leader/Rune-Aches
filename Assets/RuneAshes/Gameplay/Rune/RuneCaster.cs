@@ -6,6 +6,7 @@
 // 【W2 现状】只实现 T1 定时触发；T2 击杀 / T3 命中 / T4 冲刺 / T5 受伤 / T6 光环
 //           要等 W3 的事件总线。接入时把事件翻译成"调用 Cast()"即可，本类不用重写。
 // ─────────────────────────────────────────────────────────────────────────────
+using System;
 using System.Collections.Generic;
 using RuneAshes.Data;
 using UnityEngine;
@@ -42,6 +43,12 @@ namespace RuneAshes.Gameplay
         {
             get { return _chain; }
         }
+
+        /// <summary>
+        /// 一次施法成功后触发。动画/音效/统计订阅它，不要每帧轮询 _castCounter。
+        /// [注意] 被 ProcBudget 丢弃的施法不会触发；只有真正执行了效果才发。
+        /// </summary>
+        public event Action CastPerformed;
 
         /// <summary>
         /// 换链入口：三选一 UI、预设切换、分享码导入最终都走这里。
@@ -180,6 +187,11 @@ namespace RuneAshes.Gameplay
             };
 
             _effect.Execute(ref context);
+
+            if (CastPerformed != null)
+            {
+                CastPerformed();
+            }
         }
 
         /// <summary>
