@@ -25,6 +25,7 @@ namespace RuneAshes.Gameplay
         private InputAction _fire;
         private InputAction _dash;
         private InputAction _pause;
+        private InputAction _toggleFire;
 
         public Vector2 Move
         {
@@ -67,6 +68,12 @@ namespace RuneAshes.Gameplay
         public bool FireHeld
         {
             get { return _fire != null && _fire.IsPressed(); }
+        }
+
+        /// <summary>F / 手柄 Y：切换自动开火。关闭后 FireHeld 用来手动施法。</summary>
+        public bool ToggleFirePressed
+        {
+            get { return _toggleFire != null && _toggleFire.WasPressedThisFrame(); }
         }
 
         public bool DashPressed
@@ -121,6 +128,7 @@ namespace RuneAshes.Gameplay
             _move = ResolveAction("Move");
             _aim = ResolveAction("Aim");
             _fire = ResolveAction("Fire");
+            _toggleFire = ResolveAction("ToggleFire");
             _dash = ResolveAction("Dash");
             _pause = ResolveAction("Pause");
         }

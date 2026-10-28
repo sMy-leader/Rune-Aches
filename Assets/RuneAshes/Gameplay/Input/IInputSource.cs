@@ -30,6 +30,9 @@ namespace RuneAshes.Gameplay
         /// <summary>开火键是否按住。W2 自动开火，暂未消费。</summary>
         bool FireHeld { get; }
 
+        /// <summary>本帧按下"切换自动开火"（F / 手柄 Y）。关闭后按住开火键可手动施法。</summary>
+        bool ToggleFirePressed { get; }
+
         bool DashPressed { get; }
 
         bool PausePressed { get; }

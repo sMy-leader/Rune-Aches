@@ -107,7 +107,7 @@ namespace RuneAshes.Gameplay
             }
 
             var chain = _caster.Chain;
-            GUI.Box(new Rect(12f, 12f, 430f, 104f), string.Empty);
+            GUI.Box(new Rect(12f, 12f, 430f, 140f), string.Empty);
 
             if (chain == null)
             {
@@ -138,9 +138,14 @@ namespace RuneAshes.Gameplay
 
             GUI.Label(new Rect(22f, 66f, 410f, 24f), hint);
 
+            GUI.Label(new Rect(22f, 88f, 410f, 24f),
+                _caster.AutoFireEnabled
+                    ? "开火：自动（F / 手柄 Y 切换；关闭后按住左键 / RT 手动）"
+                    : "开火：手动（按住左键 / RT；F / 手柄 Y 恢复自动）");
+
             if (!chain.IsValid && chain.Errors.Count > 0)
             {
-                GUI.Label(new Rect(22f, 88f, 410f, 24f), chain.Errors[0]);
+                GUI.Label(new Rect(22f, 110f, 410f, 24f), chain.Errors[0]);
             }
         }
     }

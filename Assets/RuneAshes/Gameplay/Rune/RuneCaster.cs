@@ -29,6 +29,14 @@ namespace RuneAshes.Gameplay
         /// </summary>
         [SerializeField] private uint _runSeed = 20261028u;
 
+        /// <summary>
+        /// 是否自动开火。默认 true（幸存者类基线）；F / 手柄 Y 切换。
+        /// 关闭后按住鼠标左键 / RT 仍会按 T1 间隔手动施法，松开即停。
+        /// </summary>
+        [SerializeField] private bool _autoFire = true;
+
+        private IInputSource _input;
+
         private CompiledChain _chain;
         private IRuneEffect _effect;
         private IRuneWorld _world;
@@ -50,6 +58,23 @@ namespace RuneAshes.Gameplay
         /// </summary>
         public event Action CastPerformed;
 
+        /// <summary>当前是否自动开火。HUD 读它显示 ON/OFF。</summary>
+        public bool AutoFireEnabled
+        {
+            get { return _autoFire; }
+        }
+
+        /// <summary>切换自动开火。关闭后按住 Fire（鼠标左键 / RT）仍可按 T1 间隔手动施法。</summary>
+        public void ToggleAutoFire()
+        {
+            _autoFire = !_autoFire;
+        }
+
+        public void SetAutoFire(bool enabled)
+        {
+            _autoFire = enabled;
+        }
+
         /// <summary>
         /// 换链入口：三选一 UI、预设切换、分享码导入最终都走这里。
         /// 它会立即重新编译，所以下一帧开火用的就是新链。
@@ -67,6 +92,7 @@ namespace RuneAshes.Gameplay
             // IRuneWorld 就在玩家身上（由场景构建器挂载）；找不到就全场景找一次，
             // 让测试场景/手动搭的场景也能跑。
             _player = GetComponent<PlayerController>();
+            _input = GetComponent<IInputSource>();
             _world = GetComponent<UnityRuneWorld>();
             if (_world == null)
             {
@@ -114,6 +140,12 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
+            // 自动开火切换对当前所有链都生效；先处理输入，再决定是否推进 T1 计时。
+            if (_input != null && _input.ToggleFirePressed)
+            {
+                _autoFire = !_autoFire;
+            }
+
             // W2 只有 T1（定时）。其他触发器会在事件到来时直接调用 Cast()，
             // 不走这里的每帧轮询。
             if (_chain.Trigger.Id != "T1")
@@ -123,6 +155,15 @@ namespace RuneAshes.Gameplay
 
             // 预算窗口必须每帧推进，否则窗口永远不重置，链会"开局 64 次后就永久哑火"。
             _procBudget.Tick(Time.deltaTime);
+
+            // 自动开火关闭时：不按键就完全停手；按住 Fire 仍按 T1 间隔手动施法。
+            var wantsFire = _autoFire || (_input != null && _input.FireHeld);
+            if (!wantsFire)
+            {
+                // 清零而不是保留：恢复开火时不会立刻补发一発。
+                _timer = 0f;
+                return;
+            }
 
             // 0.05s 是硬下限：表里填 0 或负数时，退化成每帧施法会直接打爆帧率。
             var interval = Mathf.Max(0.05f, _chain.Trigger.GetFloat("interval", 0.8f));
