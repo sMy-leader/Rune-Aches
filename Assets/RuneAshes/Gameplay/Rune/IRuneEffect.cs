@@ -12,8 +12,7 @@ namespace RuneAshes.Gameplay
     }
 
     /// <summary>
-    /// 一次符文施法的上下文。包含递归深度与随机种子，
-    /// 用于实现"链内触发深度上限"和可复现随机。
+    /// 一次符文施法的上下文。包含递归深度、随机种子与折算后的修饰参数。
     /// </summary>
     public struct RuneEffectContext
     {
@@ -22,5 +21,8 @@ namespace RuneAshes.Gameplay
         public float BaseValue;
         public int ChainDepth;
         public uint Seed;
+        public CastMeta Meta;
+        public ModifierSet Modifiers;
+        public IRuneWorld World;
     }
 }

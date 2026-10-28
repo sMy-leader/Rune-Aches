@@ -4,6 +4,7 @@
     "references": [
         "RuneAshes.Data",
         "RuneAshes.Framework",
+        "RuneAshes.Gameplay",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
