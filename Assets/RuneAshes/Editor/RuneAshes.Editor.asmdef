@@ -4,7 +4,8 @@
     "references": [
         "RuneAshes.Data",
         "RuneAshes.Framework",
-        "RuneAshes.Gameplay"
+        "RuneAshes.Gameplay",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor"

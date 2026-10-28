@@ -12,6 +12,9 @@ namespace RuneAshes.Gameplay
         /// <summary>鼠标：屏幕坐标；手柄：右摇杆方向。由消费方区分设备语义。</summary>
         Vector2 Aim { get; }
 
+        /// <summary>当前瞄准输入是否来自手柄右摇杆（用于区分屏幕坐标与世界方向）。</summary>
+        bool IsGamepadActive { get; }
+
         bool FirePressed { get; }
 
         bool FireHeld { get; }

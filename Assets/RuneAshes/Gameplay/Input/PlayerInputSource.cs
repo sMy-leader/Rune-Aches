@@ -25,6 +25,20 @@ namespace RuneAshes.Gameplay
             get { return _aim != null ? _aim.ReadValue<Vector2>() : Vector2.zero; }
         }
 
+        public bool IsGamepadActive
+        {
+            get
+            {
+                if (_aim == null)
+                {
+                    return false;
+                }
+
+                var control = _aim.activeControl;
+                return control != null && control.device is Gamepad;
+            }
+        }
+
         public bool FirePressed
         {
             get { return _fire != null && _fire.WasPressedThisFrame(); }
