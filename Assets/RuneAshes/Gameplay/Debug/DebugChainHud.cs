@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【定位】W2 的临时验证工具，不是正式 UI。
+// 【它验证什么】按 1/2/3 切换三条 4 槽预设链 → RuneCaster 重编译 → HUD 显示能耗/槽位/错误。
+//              用来证明"改链真的会改变战斗行为"，也是 W3 三选一 UI 的临时替身。
+// 【W3 会被替换】正式升级界面走 uGUI（RuneAshes.UI 程序集），本文件保留为调试面板。
+// 【为什么用 OnGUI】灰盒期不需要 Canvas/Prefab/字体资源，几十行就能出信息，删掉也无成本。
+// ─────────────────────────────────────────────────────────────────────────────
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +17,10 @@ namespace RuneAshes.Gameplay
     /// </summary>
     public sealed class DebugChainHud : MonoBehaviour
     {
+        /// <summary>
+        /// 三条预设对应三种验证目标：持续输出、爆发清群、单体穿透。
+        /// [坑] 这里硬编码是为了 W2 快速验证；W3 接装配 UI 后应改成从存档/三选一结果生成。
+        /// </summary>
         private static readonly ChainBlueprint[] Presets =
         {
             new ChainBlueprint
@@ -72,6 +83,10 @@ namespace RuneAshes.Gameplay
             }
         }
 
+        /// <summary>
+        /// 切预设 = 换链。这是 W2 唯一会调用 RuneCaster.Configure 的地方，
+        /// 也是"三选一"逻辑的最小替身：真实版本会把玩家选择写进蓝图再走同一个入口。
+        /// </summary>
         public void ApplyPreset(int index)
         {
             if (_caster == null || index < 0 || index >= Presets.Length)

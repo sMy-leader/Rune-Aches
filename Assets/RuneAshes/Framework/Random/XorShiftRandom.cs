@@ -1,3 +1,8 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【链路】IRandom ──> XorShiftRandom（本文件，默认实现）
+// 【算法】xorshift32：三次移位异或，周期 2^32-1，零分配、跨平台一致。
+// 【不追求】密码学强度、长周期、无偏分布；玩法随机不需要这些。
+// ─────────────────────────────────────────────────────────────────────────────
 using System;
 using System.Collections.Generic;
 
@@ -9,6 +14,10 @@ namespace RuneAshes.Framework
     /// </summary>
     public sealed class XorShiftRandom : IRandom
     {
+        /// <summary>
+        /// 0 会让 xorshift 永远输出 0（吸收态），所以把 0 映射到一个非零常量。
+        /// 这不是"更好的种子"，只是保证算法不会退化。
+        /// </summary>
         private const uint FallbackSeed = 0x9E3779B9u;
 
         public XorShiftRandom(uint seed)
@@ -23,6 +32,7 @@ namespace RuneAshes.Framework
             State = seed == 0u ? FallbackSeed : seed;
         }
 
+        /// <summary>核心三步。所有其他方法都建立在它之上。</summary>
         public uint NextUInt()
         {
             var x = State;
@@ -33,6 +43,10 @@ namespace RuneAshes.Framework
             return x;
         }
 
+        /// <summary>
+        /// [注意] 取模会带来极小偏差（range 不是 2 的幂时），
+        /// 对掉落/波次这种玩法随机完全可接受；不要拿它做公平性要求高的抽奖。
+        /// </summary>
         public int NextInt(int minInclusive, int maxExclusive)
         {
             if (maxExclusive <= minInclusive)
@@ -44,9 +58,11 @@ namespace RuneAshes.Framework
             return minInclusive + (int)(NextUInt() % range);
         }
 
+        /// <summary>
+        /// 取高 24 位再除以 2^24：float 只有 24 位尾数，这样得到精确的 [0,1) 且不会等于 1。
+        /// </summary>
         public float NextFloat()
         {
-            // 24 位精度，落在 [0, 1)
             return (NextUInt() >> 8) * (1f / 16777216f);
         }
 

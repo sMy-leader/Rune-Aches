@@ -56,6 +56,11 @@ namespace RuneAshes.Framework
             return new SaveFile();
         }
 
+        /// <summary>
+        /// 原子写：先写 .tmp，再替换正式档，旧主档自动变成 .bak。
+        /// 任何一步断电，最多丢掉"这一次写入"，不会留下半个 JSON。
+        /// 主档与备份档各自维护 .sha256，所以回退时不会拿主档的 hash 去校验备份档。
+        /// </summary>
         public void Save(SaveFile data)
         {
             if (data == null)
@@ -135,6 +140,10 @@ namespace RuneAshes.Framework
             }
         }
 
+        /// <summary>
+        /// [刻意放行] 没有 .sha256 时返回 true：兼容旧档/手动放置的存档，
+        /// 不让玩家因为缺一个校验文件就打不开游戏。有 hash 时才严格比对。
+        /// </summary>
         private static bool VerifyHash(string json, string hashPath)
         {
             if (!File.Exists(hashPath))

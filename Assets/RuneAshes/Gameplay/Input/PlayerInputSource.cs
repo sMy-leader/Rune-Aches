@@ -1,3 +1,12 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【链路】InputActionAsset（.inputactions）──> PlayerInputSource（本文件）
+//        ──> IInputSource ──> PlayerController
+// 【职责】把 Unity Input System 的 Action 读成业务层能用的几个属性。
+// 【为什么多一层 IInputSource】PlayerController 不直接依赖 Input System：
+//        将来接 NGO（远端输入）、回放（录制输入）、AI（自动操作）时只换实现。
+// 【配置】_actions 必须在 Inspector 里指定 RuneAshes.inputactions，
+//        场景构建器（ArenaBlockoutBuilder）已经自动挂好；手搭场景时要自己拖。
+// ─────────────────────────────────────────────────────────────────────────────
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +16,8 @@ namespace RuneAshes.Gameplay
     public sealed class PlayerInputSource : MonoBehaviour, IInputSource
     {
         [SerializeField] private InputActionAsset _actions;
+
+        /// <summary>Action Map 名称。改 .inputactions 里的 Map 名时这里要同步。</summary>
         [SerializeField] private string _mapName = "Player";
 
         private InputAction _move;
@@ -20,11 +31,20 @@ namespace RuneAshes.Gameplay
             get { return _move != null ? _move.ReadValue<Vector2>() : Vector2.zero; }
         }
 
+        /// <summary>
+        /// 鼠标时是屏幕坐标，手柄时是右摇杆向量——由 PlayerController 根据 IsGamepadActive 解释。
+        /// 同一个属性承载两种语义，是为了让上层只写一次"瞄准"逻辑。
+        /// </summary>
         public Vector2 Aim
         {
             get { return _aim != null ? _aim.ReadValue<Vector2>() : Vector2.zero; }
         }
 
+        /// <summary>
+        /// 通过"最后一次产生输入的设备"判断当前是否手柄操作。
+        /// [坑] 鼠标/手柄同时有输入时会来回切换，导致瞄准源抖动；
+        ///      如果实机测试发现准星跳，改成"最后一次非零输入"或固定设备模式。
+        /// </summary>
         public bool IsGamepadActive
         {
             get

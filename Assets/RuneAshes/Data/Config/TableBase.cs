@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【链路】RuneTable.g.cs（生成数据）──> new RuneTable(rows) ──> TableBase 建索引
+// 【职责】所有配置表的共同基类：构造函数里一次性建 id → 行的字典，并做唯一性校验。
+// 【为什么用基类】符文表、将来的敌人表/波次表都只需要"按 id 查 + 遍历 + 筛选"，
+//                把重复逻辑收在这里，业务表只写自己特有的查询（如 ByCategory）。
+// 【约束】构造完之后表是只读的：运行期不再增删行，避免"查表查到一半表变了"。
+// ─────────────────────────────────────────────────────────────────────────────
 using System;
 using System.Collections.Generic;
 
@@ -11,6 +18,10 @@ namespace RuneAshes.Data
     {
         private readonly Dictionary<string, T> _rows;
 
+        /// <summary>
+        /// [坑] 重复 id / 空 id 在这里直接抛，而不是留到运行期覆盖。
+        /// 表格类 bug 越早暴露越便宜——尤其是生成器出错时。
+        /// </summary>
         protected TableBase(IEnumerable<T> rows, Func<T, string> idSelector)
         {
             if (rows == null)
@@ -56,6 +67,10 @@ namespace RuneAshes.Data
             get { return _rows.Values; }
         }
 
+        /// <summary>
+        /// 查不到会抛异常。只用于"这个 id 一定存在"的场合（如生成器产出的常量）；
+        /// 玩家输入/存档数据一律用 TryGet，不要让坏存档把游戏炸掉。
+        /// </summary>
         public T Get(string id)
         {
             T value;

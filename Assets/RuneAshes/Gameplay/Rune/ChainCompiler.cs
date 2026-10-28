@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【链路】ChainBlueprint ──> ChainCompiler.Compile() ──> CompiledChain
+// 【职责】把"玩家想装什么"翻译成"可执行计划"，并且一次收集全部问题。
+// 【为什么要有编译器】真正施法时每秒可能几十次；如果每次都去查表、判类别、算能耗，
+//                    既慢又容易在热路径里产生 GC。编译把这一切提前到"改链"那一刻。
+// 【设计要点】纯逻辑、不依赖 UnityEngine / 场景，所以能 0.2 秒跑完单测。
+// ─────────────────────────────────────────────────────────────────────────────
 using System;
 using System.Collections.Generic;
 using RuneAshes.Data;
@@ -31,6 +38,8 @@ namespace RuneAshes.Gameplay
                 return new CompiledChain(null, null, new List<RuneDef>(), 0, 0, errors);
             }
 
+            // 槽位解析顺序：触发器 → 效果 → 修饰 → 总量校验。
+            // 先判"类别对不对"，再算能耗，避免"效果放进触发器槽"时又冒出一条能耗错误的噪音。
             RuneDef trigger = null;
             RuneDef effect = null;
             var modifiers = new List<RuneDef>();
@@ -73,6 +82,8 @@ namespace RuneAshes.Gameplay
                 energy += effect.EnergyCost;
             }
 
+            // 修饰逐个校验并去重。遇到坏修饰只跳过它、继续检查后面的，
+            // 这样玩家一次能看到全部问题，而不是"改一个冒一个"。
             for (var i = 0; i < blueprint.ModifierIds.Count; i++)
             {
                 var id = blueprint.ModifierIds[i];
@@ -105,6 +116,8 @@ namespace RuneAshes.Gameplay
                 energy += modifier.EnergyCost;
             }
 
+            // 槽位与能耗是两条独立闸门：槽位管"能装几个"，能耗管"装得起多贵"。
+            // 两者同时超限时两条错误都会返回，玩家自己决定删哪个。
             var slots = (trigger != null ? 1 : 0) + (effect != null ? 1 : 0) + modifiers.Count;
 
             if (slots > blueprint.SlotLimit)

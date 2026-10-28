@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【链路】Projectile.Hit / UnityRuneWorld.DamageArea ──> IDamageable.ApplyDamage
+//        ──> EnemyDummy（本文件）──> Killed 事件 ──> （W3）经验掉落 / T2 击杀触发
+// 【职责】W2 的训练靶：验证"伤害能落到目标身上 + 燃烧能持续掉血 + 死亡能发事件"。
+// 【W3 会替换】正式敌人需要移动/攻击/掉落/受击反馈；本类保留在测试场景里，
+//            因为它是最小、最可控的 IDamageable 实现。
+// ─────────────────────────────────────────────────────────────────────────────
 using System;
 using UnityEngine;
 
@@ -25,6 +32,11 @@ namespace RuneAshes.Gameplay
 
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
+        /// <summary>
+        /// [坑] 静态事件：场景里所有靶子共享同一个订阅列表。
+        /// W3 换成实例事件或事件总线；在那之前，订阅方必须在 OnDisable/OnDestroy 退订，
+        /// 否则场景重载后旧对象仍会被回调（编辑器里表现为 MissingReferenceException）。
+        /// </summary>
         public static event Action<EnemyDummy, DamageEvent> Killed;
 
         public bool IsAlive
@@ -65,6 +77,8 @@ namespace RuneAshes.Gameplay
             }
 
             _health -= damage.Amount;
+
+            // DoT 不闪白：否则燃烧的每一帧都会把靶子刷成白色，反而看不出命中反馈。
             if (damage.Type != DamageType.Dot)
             {
                 _flashTimer = _hitFlashDuration;
@@ -74,6 +88,9 @@ namespace RuneAshes.Gameplay
             {
                 _health = 0f;
                 _burnTimeLeft = 0f;
+
+                // 先发事件、再隐藏：订阅方（掉落/计数/触发链）还能读到死亡位置。
+                // 顺序反过来就只能拿到 inactive 对象，位置和组件都不方便用。
                 if (Killed != null)
                 {
                     Killed(this, damage);
@@ -83,6 +100,11 @@ namespace RuneAshes.Gameplay
             }
         }
 
+        /// <summary>
+        /// 燃烧采用"取最大值"而不是叠加层数：后一次燃烧只会刷新更疼的那个。
+        /// 这是《符文语义规范》里定死的规则——否则多个燃烧来源会在同一目标上
+        /// 指数级叠伤害，几秒内秒掉 Boss。
+        /// </summary>
         public void ApplyBurn(float dps, float duration, CastMeta meta)
         {
             if (!IsAlive)
@@ -117,6 +139,8 @@ namespace RuneAshes.Gameplay
         {
             var dt = Time.deltaTime;
 
+            // 燃烧按帧结算（dps × dt），不是固定 0.5s 跳一次。
+            // 好处是总伤害与帧率无关；代价是掉帧时飘字频率会变，W3 做伤害数字时统一按 0.2s 聚合显示。
             if (_burnTimeLeft > 0f && IsAlive)
             {
                 _burnTimeLeft -= dt;
@@ -128,6 +152,8 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
+            // [注意] _renderer.material 会创建一份材质实例，每个靶子一份。
+            // 训练场景可以接受；正式敌人数量大时应改用 MaterialPropertyBlock，避免材质实例爆内存。
             if (_flashTimer > 0f)
             {
                 _flashTimer -= dt;

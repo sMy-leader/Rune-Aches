@@ -1,3 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【链路】IRuneWorld（接口）──> UnityRuneWorld（本文件，Unity 实现）
+//        ──> 弹丸池 / OverlapSphere / OverlapCapsule ──> IDamageable
+// 【职责】把"效果想要的世界操作"翻译成 Unity API：生成弹丸、打一条线、打一个圈、找最近目标。
+// 【所在位置】挂在玩家 GameObject 上，由 ArenaBlockoutBuilder 创建；RuneCaster 直接取用。
+// 【W2 已知短板】命中检测是 OverlapSphere/Capsule 的即时查询，
+//               敌人数量上去后会变贵。W3 换成空间哈希 + Job，但接口不变。
+// ─────────────────────────────────────────────────────────────────────────────
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -108,6 +116,12 @@ namespace RuneAshes.Gameplay
             return found;
         }
 
+        /// <summary>
+        /// 把一次范围/线形查询的结果结算到所有命中目标。
+        /// [坑] 去重基于 Collider 而不是 IDamageable：同一个敌人如果有多个 Collider
+        ///      （比如身体 + 受击框），会在这里被结算两次。W3 换敌人时应保证每敌一个 Collider，
+        ///      或改成按 IDamageable 去重。
+        /// </summary>
         private void ApplyToHits(int count, float damage, DamageType type, CastMeta meta)
         {
             _uniqueHits.Clear();
@@ -126,6 +140,11 @@ namespace RuneAshes.Gameplay
             }
         }
 
+        /// <summary>
+        /// 从池里取一发空闲弹丸；没有就新建。
+        /// 用 activeSelf 判断空闲，池只增不减（W2 简化）。
+        /// [坑] 线性扫描空闲项：池里有几百发时每次发射都要扫。W3 应改成栈/队列索引。
+        /// </summary>
         private Projectile GetProjectile()
         {
             for (var i = 0; i < _projectiles.Count; i++)

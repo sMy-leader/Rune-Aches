@@ -1,3 +1,11 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【链路】CompiledChain.Effect（RuneDef）──> RuneEffectFactory.Create() ──> IRuneEffect
+// 【职责】效果原语的注册表：把表里的 ID 映射成可执行的 C# 对象。
+// 【为什么用 switch 而不是反射/字典】数量少（5 个）、编译期可查、读起来一目了然；
+//                                新增一个效果只改这里 + 新增一个 Effect 类 + 加一行 CSV。
+// 【扩展步骤】① 写 XxxEffect 实现 IRuneEffect；② 在下面加 case；③ rune.csv 新增行；
+//            ④ 跑 Generate Rune Table；⑤ 写一个 fake world 单测。
+// ─────────────────────────────────────────────────────────────────────────────
 using System;
 using RuneAshes.Data;
 

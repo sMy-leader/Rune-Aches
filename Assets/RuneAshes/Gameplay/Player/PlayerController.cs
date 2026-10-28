@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// 【链路】IInputSource ──> PlayerController（本文件）──> AimDirection / IsDashing
+//        ──> RuneCaster.Cast(direction)、（W3）PlayerHealth 的冲刺无敌
+// 【职责】把"玩家意图"变成位移与瞄准方向。它不关心符文、不关心伤害。
+// 【为什么用 CharacterController】不需要刚体物理/重力，移动完全由代码控制，
+//                              碰撞响应可预测，也避免弹幕游戏里常见的刚体抖动。
+// ─────────────────────────────────────────────────────────────────────────────
 using UnityEngine;
 
 namespace RuneAshes.Gameplay
@@ -11,16 +18,22 @@ namespace RuneAshes.Gameplay
     {
         [Header("Move")]
         [SerializeField] private float _moveSpeed = 6f;
+
+        /// <summary>加速度。不是瞬间到最大速度，让起步/转向有一点重量感。</summary>
         [SerializeField] private float _acceleration = 70f;
 
         [Header("Dash")]
         [SerializeField] private float _dashSpeed = 18f;
         [SerializeField] private float _dashDuration = 0.25f;
         [SerializeField] private float _dashCooldown = 2.5f;
+
+        /// <summary>无敌时间与冲刺时长相同：整个冲刺过程都不可被伤害。</summary>
         [SerializeField] private float _dashInvulnerability = 0.25f;
 
         [Header("Aim")]
         [SerializeField] private Transform _aimPivot;
+
+        /// <summary>鼠标射线与哪个高度的水平面求交。0 表示地面；角色中心大约 0.9m。</summary>
         [SerializeField] private float _groundPlaneHeight;
 
         private CharacterController _controller;
@@ -76,19 +89,30 @@ namespace RuneAshes.Gameplay
             }
 
             var dt = Time.deltaTime;
+
+            // 先推进计时器，再读输入：这样冷却结束的同一帧就能再次冲刺/受伤。
             _dashCooldownLeft = Mathf.Max(0f, _dashCooldownLeft - dt);
             _invulnerabilityLeft = Mathf.Max(0f, _invulnerabilityLeft - dt);
 
+            // 顺序有讲究：先瞄准（决定冲刺兜底方向），再处理冲刺，最后移动。
             UpdateAim();
             HandleDashInput();
             UpdateMovement(dt);
 
+            // 只转视觉挂点，不转整个角色：CharacterController 的碰撞胶囊不受影响。
             if (_aimPivot != null)
             {
                 _aimPivot.rotation = Quaternion.LookRotation(_aimDirection, Vector3.up);
             }
         }
 
+        /// <summary>
+        /// 两套瞄准输入：
+        /// - 手柄：右摇杆方向，超过死区才更新（否则松手会瞬间朝 0 向量）；
+        /// - 鼠标：屏幕射线与水平面求交，再算"玩家 → 交点"的方向。
+        /// [为什么用 Plane 而不是 Physics.Raycast] 不依赖地面是否有 Collider，
+        /// 也不会被场景里的障碍/触发器挡住，瞄准手感更稳定。
+        /// </summary>
         private void UpdateAim()
         {
             if (_input.IsGamepadActive)
@@ -129,6 +153,11 @@ namespace RuneAshes.Gameplay
             }
         }
 
+        /// <summary>
+        /// 冲刺输入：冷却中/正在冲刺时忽略。
+        /// 方向优先取移动输入（想往哪冲），没有移动输入才朝瞄准方向冲。
+        /// 冷却与无敌同时开始计时——所以无敌覆盖整个冲刺动作，但不会额外延长。
+        /// </summary>
         private void HandleDashInput()
         {
             if (!_input.DashPressed || _isDashing || _dashCooldownLeft > 0f)
@@ -144,6 +173,11 @@ namespace RuneAshes.Gameplay
             _isDashing = true;
         }
 
+        /// <summary>
+        /// 位移。冲刺阶段直接覆盖速度；结束后把速度保留为普通移动速度，
+        /// 避免"冲刺一停就急停"的顿挫感（如果手感太滑，把这里改成 0 即可）。
+        /// 普通移动用 MoveTowards 做加速度平滑，并把斜向输入归一化，防止斜着走更快。
+        /// </summary>
         private void UpdateMovement(float dt)
         {
             if (_isDashing)
