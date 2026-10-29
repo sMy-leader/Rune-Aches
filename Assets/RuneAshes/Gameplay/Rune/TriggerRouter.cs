@@ -116,7 +116,7 @@ namespace RuneAshes.Gameplay
                 }
             });
         }
-
+        //事件源传入委托参数以确定是哪个触发器
         // ── T2 击杀回响 ──────────────────────────────────────────────────────
         private void OnKill(DamageEvent damage, IDamageable target)
         {
@@ -176,7 +176,7 @@ namespace RuneAshes.Gameplay
             }
 
             var direction = _player != null ? _player.LastDashDirection : transform.forward;
-            _caster.CastFromEvent(direction, 1);
+            _caster.CastFromEvent(direction, 1);//向前的余波攻击（以玩家为线）
         }
 
         // ── T5 受伤反击 ──────────────────────────────────────────────────────

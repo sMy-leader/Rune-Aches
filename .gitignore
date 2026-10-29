@@ -62,6 +62,7 @@ desktop.ini
 
 # ---- 本地模型/贴图（约 1.2GB，不入 Git；场景引用会在本地保留） ----
 /Assets/Art/Incoming/
+/Assets/Art/Incoming.meta
 
 # ---- Reasonix 会话附件（本地临时） ----
 .reasonix/
