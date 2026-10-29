@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 121840687}
   - component: {fileID: 121840686}
   - component: {fileID: 121840692}
+  - component: {fileID: 121840693}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -277,6 +278,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.PlayerHealth
   _maxHealth: 100
+--- !u!114 &121840693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121840684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 137134fe1d8cb2e469e0bef78bc1b129, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.TriggerRouter
+  _hitChance: 0.25
+  _hitIcd: 0.05
+  _injuryIcd: 1
+  _auraInterval: 0.5
+  _auraRadius: 4
+  _auraDamageRatio: 0.3
 --- !u!1 &178724599
 GameObject:
   m_ObjectHideFlags: 0
@@ -2248,6 +2267,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1037856528124227885, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: _damage
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037856528124227885, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
       propertyPath: _hitDelay
       value: 0.8
       objectReference: {fileID: 0}
@@ -2258,6 +2281,10 @@ PrefabInstance:
     - target: {fileID: 1037856528124227885, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
       propertyPath: _attackCooldown
       value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1037856528124227885, guid: bfd41df83b23f45958a79a36bca1c183, type: 3}
+      propertyPath: _attackHitNormalizedTime
+      value: 0.45
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

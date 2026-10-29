@@ -39,6 +39,7 @@ namespace RuneAshes.Gameplay
         private CharacterController _controller;
         private IInputSource _input;
         private Camera _camera;
+        private UnityRuneWorld _world;
 
         private Vector3 _horizontalVelocity;
         private Vector3 _aimDirection = Vector3.forward;
@@ -82,6 +83,12 @@ namespace RuneAshes.Gameplay
             get { return _isDashing; }
         }
 
+        /// <summary>T4 冲刺余波用：最近一次冲刺的方向。</summary>
+        public Vector3 LastDashDirection
+        {
+            get { return _dashDirection; }
+        }
+
         public bool IsInvulnerable
         {
             get { return _invulnerabilityLeft > 0f; }
@@ -98,6 +105,7 @@ namespace RuneAshes.Gameplay
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<IInputSource>();
             _camera = Camera.main;
+            _world = GetComponent<UnityRuneWorld>();
 
             if (_input == null)
             {
@@ -212,6 +220,12 @@ namespace RuneAshes.Gameplay
                 {
                     _isDashing = false;
                     _horizontalVelocity = _dashDirection * _moveSpeed;
+
+                    // T4 冲刺余波：冲刺结束的同一帧发事件。
+                    if (_world != null)
+                    {
+                        _world.RaiseDashCompleted();
+                    }
                 }
 
                 return;

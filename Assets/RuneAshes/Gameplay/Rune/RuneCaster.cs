@@ -52,6 +52,18 @@ namespace RuneAshes.Gameplay
             get { return _chain; }
         }
 
+        /// <summary>链的 ID。W3 只有一条链，固定为 1；多链装配时改成实例字段。</summary>
+        public int ChainId
+        {
+            get { return 1; }
+        }
+
+        /// <summary>T6 光环等"不经过效果原语"的触发需要读效果基础值。</summary>
+        public float EffectBaseValue
+        {
+            get { return _chain != null && _chain.Effect != null ? _chain.Effect.BaseValue : 0f; }
+        }
+
         /// <summary>
         /// 一次施法成功后触发。动画/音效/统计订阅它，不要每帧轮询 _castCounter。
         /// [注意] 被 ProcBudget 丢弃的施法不会触发；只有真正执行了效果才发。
@@ -189,6 +201,25 @@ namespace RuneAshes.Gameplay
         /// </summary>
         public void Cast(Vector3 direction)
         {
+            CastInternal(direction, 0);
+        }
+
+        /// <summary>
+        /// 事件触发的施法（T2/T3/T4/T5）。depth 来自触发源伤害的 Depth + 1；
+        /// 超过 RuneRules.MaxChainDepth 直接丢弃，防止"击杀→爆炸→击杀"无限递归。
+        /// </summary>
+        public void CastFromEvent(Vector3 direction, int depth)
+        {
+            if (!RuneRules.CanTrigger(depth))
+            {
+                return;
+            }
+
+            CastInternal(direction, depth);
+        }
+
+        private void CastInternal(Vector3 direction, int depth)
+        {
             if (_chain == null || _effect == null || _world == null)
             {
                 return;
@@ -204,13 +235,13 @@ namespace RuneAshes.Gameplay
             }
 
             // CastId 让同一次施法派生的所有弹丸/爆炸共享身份，用于击杀归属与"同帧合并"。
-            // Depth=0 表示这是玩家直接施法，之后由事件派生的才 +1。
+            // Depth 由触发源决定：0 = 玩家直接施法，事件派生 +1。
             var meta = new CastMeta
             {
-                ChainId = 1,
+                ChainId = ChainId,
                 CastId = _castCounter,
-                Depth = 0,
-                Seed = Hash(_runSeed, (uint)_castCounter)
+                Depth = depth,
+                Seed = Hash(_runSeed, (uint)(_castCounter + depth))
             };
 
             // 发射点抬高 0.9m：与灰盒靶子的受击高度对齐，也避免弹丸出生就贴地。
@@ -220,7 +251,7 @@ namespace RuneAshes.Gameplay
                 Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward,
                 // 效果伤害从表里读；将来等级强化就乘在这里，效果代码不用改。
                 BaseValue = _chain.Effect.BaseValue,
-                ChainDepth = 0,
+                ChainDepth = depth,
                 Seed = meta.Seed,
                 Meta = meta,
                 Modifiers = _modifiers,

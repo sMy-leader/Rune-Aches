@@ -6,6 +6,7 @@
 // 【W2 已知短板】命中检测是 OverlapSphere/Capsule 的即时查询，
 //               敌人数量上去后会变贵。W3 换成空间哈希 + Job，但接口不变。
 // ─────────────────────────────────────────────────────────────────────────────
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,6 +31,50 @@ namespace RuneAshes.Gameplay
         /// 否则玩家发射的弹丸出生在脚下、第一帧就会命中自己。
         /// </summary>
         private IDamageable _owner;
+
+        /// <summary>
+        /// 战斗事件总线：只转发"发生了什么"，不决定谁来消费。
+        /// TriggerRouter 订阅它，把命中/击杀/冲刺/受伤翻译成符文触发。
+        /// </summary>
+        public event Action<DamageEvent, IDamageable> Hit;
+
+        public event Action<DamageEvent, IDamageable> Kill;
+
+        public event Action DashCompleted;
+
+        public event Action<DamageEvent> PlayerInjured;
+
+        public void RaiseHit(DamageEvent damage, IDamageable target)
+        {
+            if (Hit != null)
+            {
+                Hit(damage, target);
+            }
+        }
+
+        public void RaiseKill(DamageEvent damage, IDamageable target)
+        {
+            if (Kill != null)
+            {
+                Kill(damage, target);
+            }
+        }
+
+        public void RaiseDashCompleted()
+        {
+            if (DashCompleted != null)
+            {
+                DashCompleted();
+            }
+        }
+
+        public void RaisePlayerInjured(DamageEvent damage)
+        {
+            if (PlayerInjured != null)
+            {
+                PlayerInjured(damage);
+            }
+        }
 
         private void Awake()
         {
@@ -156,7 +201,12 @@ namespace RuneAshes.Gameplay
                 }
 
                 _uniqueHits.Add(collider);
-                damageable.ApplyDamage(new DamageEvent(meta, damage, type));
+                var damageEvent = new DamageEvent(meta, damage, type);
+                damageable.ApplyDamage(damageEvent);
+                if (type != DamageType.Dot)
+                {
+                    RaiseHit(damageEvent, damageable);
+                }
             }
         }
 

@@ -33,11 +33,13 @@ namespace RuneAshes.Gameplay
         [SerializeField] private float _turnSpeed = 540f;
 
         [Header("Attack")]
-        [SerializeField] private float _attackCooldown = 1.2f;
+        [SerializeField] private float _attackCooldown = 1.5f;
         [SerializeField] private float _windupDuration = 0.15f;
-        [SerializeField] private float _hitDelay = 0.5f;
-        [SerializeField] private float _recoverDuration = 0.8f;
-        [SerializeField] private float _damage = 15f;
+
+        /// <summary>命中帧在攻击动画中的归一化位置（0~1）。0.45 大约是中段挥击。</summary>
+        [SerializeField] private float _attackHitNormalizedTime = 0.45f;
+
+        [SerializeField] private float _damage = 10f;
         [SerializeField] private float _hitReach = 2.8f;
 
         [Header("Hit")]
@@ -47,6 +49,7 @@ namespace RuneAshes.Gameplay
         private EnemyAnimatorDriver _animator;
         private EnemyActor _actor;
         private PlayerHealth _target;
+        private UnityRuneWorld _world;
 
         private State _state = State.Idle;
         private float _stateTime;
@@ -63,6 +66,7 @@ namespace RuneAshes.Gameplay
             _controller = GetComponent<CharacterController>();
             _animator = GetComponent<EnemyAnimatorDriver>();
             _actor = GetComponent<EnemyActor>();
+            _world = FindFirstObjectByType<UnityRuneWorld>();
         }
 
         private void OnEnable()
@@ -165,15 +169,19 @@ namespace RuneAshes.Gameplay
                     break;
 
                 case State.AttackRecover:
-                    // 命中帧用固定延迟，而不是 Animation Event：
-                    // 切片期更好调，也不依赖 FBX 里是否加了事件。
-                    if (!_didHit && _stateTime >= _hitDelay)
+                    // 命中帧用攻击动画的归一化时间，而不是固定秒数：
+                    // Attack 1/2/3 长度不同，固定 0.5s 在短 clip 上会打空、长 clip 上会延迟。
+                    var inAttack = _animator != null && _animator.IsInAttackState();
+                    var normalized = _animator != null ? _animator.CurrentNormalizedTime() : 0f;
+
+                    if (!_didHit && inAttack && normalized >= _attackHitNormalizedTime)
                     {
                         _didHit = true;
                         TryDealDamage(distance);
                     }
 
-                    if (_stateTime >= _recoverDuration)
+                    // 动画播完（或 2s 兜底）就回 Chase；行为判断仍然在代码里，不写进 Animator。
+                    if (_stateTime > 0.1f && (!inAttack || normalized >= 0.95f || _stateTime >= 2f))
                     {
                         _cooldown = _attackCooldown;
                         Enter(State.Chase);
@@ -256,6 +264,12 @@ namespace RuneAshes.Gameplay
         private void OnDied(EnemyActor actor, DamageEvent damage)
         {
             Enter(State.Dead);
+
+            // T2 击杀回响：把击杀事件发给玩家世界；TriggerRouter 决定要不要再施法。
+            if (_world != null)
+            {
+                _world.RaiseKill(damage, actor);
+            }
 
             if (_animator != null)
             {

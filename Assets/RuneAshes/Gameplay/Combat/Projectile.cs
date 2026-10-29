@@ -172,7 +172,14 @@ namespace RuneAshes.Gameplay
         /// </summary>
         private void Hit(IDamageable damageable)
         {
-            damageable.ApplyDamage(new DamageEvent(_spec.Meta, _spec.Damage * _damageScale, DamageType.Direct));
+            var damageEvent = new DamageEvent(_spec.Meta, _spec.Damage * _damageScale, DamageType.Direct);
+            damageable.ApplyDamage(damageEvent);
+
+            // 命中事件用于 T3 命中传导；DoT 不算命中（语义规范 DotCountsAsHit=false）。
+            if (Owner != null)
+            {
+                Owner.RaiseHit(damageEvent, damageable);
+            }
 
             var debuff = damageable as IDebuffable;
             if (debuff != null && _spec.Modifiers.BurnDps > 0f)

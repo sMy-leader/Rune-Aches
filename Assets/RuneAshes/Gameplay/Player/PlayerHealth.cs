@@ -18,6 +18,7 @@ namespace RuneAshes.Gameplay
         private PlayerController _player;
         private PlayerAnimatorDriver _animator;
         private RuneCaster _caster;
+        private UnityRuneWorld _world;
 
         public bool IsAlive
         {
@@ -45,6 +46,7 @@ namespace RuneAshes.Gameplay
             _player = GetComponent<PlayerController>();
             _animator = GetComponentInChildren<PlayerAnimatorDriver>(true);
             _caster = GetComponent<RuneCaster>();
+            _world = GetComponent<UnityRuneWorld>();
         }
 
         public void ApplyDamage(DamageEvent damage)
@@ -87,9 +89,18 @@ namespace RuneAshes.Gameplay
             }
 
             // DoT 不触发受击动画：否则燃烧每帧都会把角色打进受击状态。
-            if (damage.Type != DamageType.Dot && _animator != null)
+            if (damage.Type != DamageType.Dot)
             {
-                _animator.PlayHit();
+                // T5 受伤反击：只在非致死、非 DoT 的伤害上触发。
+                if (_world != null)
+                {
+                    _world.RaisePlayerInjured(damage);
+                }
+
+                if (_animator != null)
+                {
+                    _animator.PlayHit();
+                }
             }
         }
 

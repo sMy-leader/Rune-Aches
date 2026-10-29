@@ -62,5 +62,28 @@ namespace RuneAshes.Gameplay
                 _animator.SetTrigger(DeathId);
             }
         }
+
+        /// <summary>当前是否在 Attack 1/2/3 状态。命中帧判断要先确认还在攻击动画里。</summary>
+        public bool IsInAttackState()
+        {
+            if (_animator == null)
+            {
+                return false;
+            }
+
+            var info = _animator.GetCurrentAnimatorStateInfo(0);
+            return info.IsName("Attack 1") || info.IsName("Attack 2") || info.IsName("Attack 3");
+        }
+
+        /// <summary>当前状态归一化时间（0~1）。不同攻击 clip 长度不同，用比例而不是固定秒数。</summary>
+        public float CurrentNormalizedTime()
+        {
+            if (_animator == null)
+            {
+                return 0f;
+            }
+
+            return Mathf.Repeat(_animator.GetCurrentAnimatorStateInfo(0).normalizedTime, 1f);
+        }
     }
 }
