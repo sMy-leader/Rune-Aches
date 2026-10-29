@@ -51,3 +51,17 @@ desktop.ini
 # ---- AI / local scratch ----
 .ai_completion/
 *.tmp
+
+# ---- 本地第三方资产包（约 2.9GB，不入 Git，需要时从原处重新导入） ----
+/Assets/ScansFactory/
+/Assets/ScansFactory.meta
+
+# ---- 本地第三方角色包（约 103MB，不入 Git） ----
+/Assets/Polygonmaker/
+/Assets/Polygonmaker.meta
+
+# ---- 本地模型/贴图（约 1.2GB，不入 Git；场景引用会在本地保留） ----
+/Assets/Art/Incoming/
+
+# ---- Reasonix 会话附件（本地临时） ----
+.reasonix/
