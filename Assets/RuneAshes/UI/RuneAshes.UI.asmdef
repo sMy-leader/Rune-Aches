@@ -5,7 +5,8 @@
         "RuneAshes.Data",
         "RuneAshes.Framework",
         "RuneAshes.Gameplay",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

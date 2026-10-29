@@ -66,3 +66,6 @@ desktop.ini
 
 # ---- Reasonix 会话附件（本地临时） ----
 .reasonix/
+
+# ---- 截图/录屏产物 ----
+/Captures/

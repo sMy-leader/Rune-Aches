@@ -13,6 +13,9 @@ namespace RuneAshes.Gameplay
     {
         [SerializeField] private float _maxHealth = 300f;
 
+        /// <summary>击杀经验。杂兵 10，精英 30，Boss 100；由场景/生成器覆盖。</summary>
+        [SerializeField] private int _xpReward = 10;
+
         private float _health;
         private bool _dead;
 
@@ -44,6 +47,11 @@ namespace RuneAshes.Gameplay
         public float MaxHealth
         {
             get { return _maxHealth; }
+        }
+
+        public int XpReward
+        {
+            get { return _xpReward; }
         }
 
         /// <summary>0~1，HUD/血条用。</summary>
