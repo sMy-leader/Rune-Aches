@@ -84,7 +84,7 @@ namespace RuneAshes.Gameplay
             _triggerId = triggerId;
             _effectId = effectId;
             _modifierIds = modifierIds ?? new string[0];
-            Rebuild();
+            Rebuild();//重编译此链
         }
 
         private void Awake()
@@ -112,7 +112,7 @@ namespace RuneAshes.Gameplay
         {
             var provider = new TableProvider();
             provider.LoadAll();
-            var compiler = new ChainCompiler(provider.Runes);
+            var compiler = new ChainCompiler(provider.Runes);//符文表作为参数传入
 
             _chain = compiler.Compile(new ChainBlueprint
             {

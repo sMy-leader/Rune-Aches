@@ -105,7 +105,7 @@ namespace RuneAshes.Gameplay
 
             if (_target == null || !_target.IsAlive)
             {
-                _target = FindFirstObjectByType<PlayerHealth>();
+                _target = FindFirstObjectByType<PlayerHealth>();//通过挂载的血量脚本找场上玩家
                 if (_target == null || !_target.IsAlive)
                 {
                     if (_animator != null)
@@ -125,6 +125,7 @@ namespace RuneAshes.Gameplay
             {
                 case State.Idle:
                     _animator.SetLocomotion(0f);
+                    //达到距离->追击
                     if (distance <= _detectRange)
                     {
                         Enter(State.Chase);
@@ -137,7 +138,7 @@ namespace RuneAshes.Gameplay
 
                     if (distance <= _attackRange && _cooldown <= 0f)
                     {
-                        Enter(State.AttackWindup);
+                        Enter(State.AttackWindup);//到达攻击距离
                     }
                     else if (distance > _attackRange)
                     {

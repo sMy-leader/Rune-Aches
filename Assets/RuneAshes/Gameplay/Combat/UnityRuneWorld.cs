@@ -55,7 +55,7 @@ namespace RuneAshes.Gameplay
                 projectile.gameObject.SetActive(false);
             }
         }
-
+        //发射环形球
         public void SpawnOrbitingOrbs(OrbitSpec spec)
         {
             var orbObject = new GameObject("OrbitingOrbs");
@@ -63,7 +63,7 @@ namespace RuneAshes.Gameplay
             var orbs = orbObject.AddComponent<OrbitingOrbs>();
             orbs.Init(spec, transform);
         }
-
+        //放地雷
         public void SpawnMine(MineSpec spec)
         {
             var mineObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -87,6 +87,7 @@ namespace RuneAshes.Gameplay
             mine.Init(spec, this);
         }
 
+        //直线伤害逻辑
         public void DamageLine(LineDamageSpec spec)
         {
             var direction = spec.Direction.sqrMagnitude > 0.0001f ? spec.Direction.normalized : Vector3.forward;
@@ -97,6 +98,7 @@ namespace RuneAshes.Gameplay
             ApplyToHits(count, spec.Damage, DamageType.Direct, spec.Meta);
         }
 
+        //区域伤害->地雷，爆炸等
         public void DamageArea(AreaDamageSpec spec)
         {
             var count = Physics.OverlapSphereNonAlloc(

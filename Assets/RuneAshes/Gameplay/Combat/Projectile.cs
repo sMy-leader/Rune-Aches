@@ -74,11 +74,12 @@ namespace RuneAshes.Gameplay
 
             transform.position += _direction * (_spec.Speed * dt);
 
+            //打到子弹就消亡
             if (TryHit())
             {
                 return;
             }
-
+            //达到生命周期，消亡
             if (_age >= _spec.Lifetime)
             {
                 Expire();
@@ -127,7 +128,7 @@ namespace RuneAshes.Gameplay
 
             for (var i = 0; i < count; i++)
             {
-                var damageable = _hits[i].GetComponentInParent<IDamageable>();
+                var damageable = _hits[i].GetComponentInParent<IDamageable>();//敌人身上脚本继承IDa
                 if (damageable == null || !damageable.IsAlive ||
                     (Owner != null && Owner.IsOwner(damageable)))
                 {

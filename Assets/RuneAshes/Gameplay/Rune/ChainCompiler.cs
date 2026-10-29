@@ -94,18 +94,19 @@ namespace RuneAshes.Gameplay
                     continue;
                 }
 
+                //判断有没有
                 if (!_runes.TryGet(id, out modifier))
                 {
                     errors.Add("Unknown modifier '" + id + "'.");
                     continue;
                 }
-
+                //判断是不是修饰
                 if (modifier.Category != RuneCategory.Modifier)
                 {
                     errors.Add("'" + modifier.Id + "' is not a modifier.");
                     continue;
                 }
-
+                //判断是否重复
                 if (!RuneRules.AllowDuplicateModifiers && !seenModifiers.Add(modifier.Id))
                 {
                     errors.Add("Duplicate modifier '" + modifier.Id + "' (each modifier can appear once per chain).");
@@ -113,26 +114,27 @@ namespace RuneAshes.Gameplay
                 }
 
                 modifiers.Add(modifier);
-                energy += modifier.EnergyCost;
+                energy += modifier.EnergyCost;//算能量消耗
             }
 
             // 槽位与能耗是两条独立闸门：槽位管"能装几个"，能耗管"装得起多贵"。
             // 两者同时超限时两条错误都会返回，玩家自己决定删哪个。
             var slots = (trigger != null ? 1 : 0) + (effect != null ? 1 : 0) + modifiers.Count;
 
+            //槽位大于了最大的限制
             if (slots > blueprint.SlotLimit)
             {
                 errors.Add("Slots " + slots + " exceed limit " + blueprint.SlotLimit + " (remove " +
                            (slots - blueprint.SlotLimit) + ").");
             }
-
+            //超出来能量承载
             if (energy > blueprint.EnergyLimit)
             {
                 errors.Add("Energy " + energy + " exceeds limit " + blueprint.EnergyLimit + " (remove " +
                            (energy - blueprint.EnergyLimit) + ").");
             }
 
-            return new CompiledChain(trigger, effect, modifiers, energy, slots, errors);
+            return new CompiledChain(trigger, effect, modifiers, energy, slots, errors);//最终将链返回出去
         }
     }
 }

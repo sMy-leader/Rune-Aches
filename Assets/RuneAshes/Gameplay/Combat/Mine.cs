@@ -68,6 +68,9 @@ namespace RuneAshes.Gameplay
             }
         }
 
+        /// <summary>
+        /// 爆炸逻辑引用runeworld的区域伤害方法->DamageArea
+        /// </summary>
         private void Explode()
         {
             if (_world != null)
