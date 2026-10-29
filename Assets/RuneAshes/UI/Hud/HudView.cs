@@ -20,6 +20,7 @@ namespace RuneAshes.UI
         private Text _waveText;
         private Text _chainText;
         private Text _fireText;
+        private Text _fpsText;
         private Canvas _canvas;
 
         private PlayerHealth _health;
@@ -27,6 +28,7 @@ namespace RuneAshes.UI
         private RuneCaster _caster;
         private RunProgression _progression;
         private WaveSpawner _waves;
+        private RunStats _stats;
 
         private float _startTime;
         private float _chainRefresh;
@@ -44,6 +46,7 @@ namespace RuneAshes.UI
             _caster = FindFirstObjectByType<RuneCaster>();
             _progression = FindFirstObjectByType<RunProgression>();
             _waves = FindFirstObjectByType<WaveSpawner>();
+            _stats = FindFirstObjectByType<RunStats>();
             _startTime = Time.time;
         }
 
@@ -86,6 +89,9 @@ namespace RuneAshes.UI
                 UiTheme.Cyan, TextAnchor.MiddleRight, new Vector2(620f, 28f), new Vector2(620f, -455f));
             _fireText = UiTheme.CreateText(parent, "Fire", "开火：自动（F / Y）", 14,
                 UiTheme.Amber, TextAnchor.MiddleRight, new Vector2(620f, 24f), new Vector2(620f, -485f));
+
+            _fpsText = UiTheme.CreateText(parent, "FPS", "FPS 60", 14,
+                UiTheme.Dim, TextAnchor.MiddleRight, new Vector2(200f, 26f), new Vector2(760f, 505f));
         }
 
         private void Update()
@@ -111,7 +117,8 @@ namespace RuneAshes.UI
 
             if (_waves != null)
             {
-                _waveText.text = "波次 " + _waves.WaveIndex + "   存活 " + _waves.AliveCount;
+                _waveText.text = "波次 " + _waves.WaveIndex + "   存活 " + _waves.AliveCount +
+                                 "   击杀 " + (_stats != null ? _stats.Kills : 0);
             }
 
             _chainRefresh -= Time.deltaTime;
@@ -130,6 +137,9 @@ namespace RuneAshes.UI
                     ? "开火：自动（F / Y 切换）"
                     : "开火：手动（按住左键 / RT）";
             }
+
+            var fps = 1f / Mathf.Max(0.0001f, Time.unscaledDeltaTime);
+            _fpsText.text = "FPS " + Mathf.RoundToInt(fps);
         }
     }
 }

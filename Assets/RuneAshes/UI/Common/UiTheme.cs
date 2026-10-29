@@ -25,19 +25,35 @@ namespace RuneAshes.UI
         public static readonly Color Danger = new Color(0.85f, 0.36f, 0.31f, 1f);
 
         private static Font _font;
+        private static Font _fontOverride;
         private static Sprite _white;
+
+        /// <summary>由 UiBootstrap 在启动时注入正式字体（思源黑体）；为空时回退系统字体。</summary>
+        public static void SetFont(Font font)
+        {
+            if (font != null)
+            {
+                _fontOverride = font;
+                _font = font;
+            }
+        }
 
         public static Font Font
         {
             get
             {
+                if (_fontOverride != null)
+                {
+                    return _fontOverride;
+                }
+
                 if (_font == null)
                 {
                     _font = UnityEngine.Font.CreateDynamicFontFromOSFont(
                         new[] { "Microsoft YaHei", "SimHei", "Noto Sans CJK SC", "Arial" }, 24);
                     if (_font == null)
                     {
-                        _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                        _font = Resources.GetBuiltinResource<UnityEngine.Font>("LegacyRuntime.ttf");
                     }
                 }
 

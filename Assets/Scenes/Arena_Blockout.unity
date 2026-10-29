@@ -469,6 +469,10 @@ GameObject:
   - component: {fileID: 121840696}
   - component: {fileID: 121840695}
   - component: {fileID: 121840694}
+  - component: {fileID: 121840702}
+  - component: {fileID: 121840701}
+  - component: {fileID: 121840700}
+  - component: {fileID: 121840699}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -698,6 +702,59 @@ MonoBehaviour:
   _currentXp: 0
   _baseXp: 10
   _xpPerLevel: 4
+--- !u!114 &121840699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121840684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78f0a75f48d9c07418f77ac0eb2ee266, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.UI::RuneAshes.UI.HitFeedback
+  _hitStopDuration: 0.035
+  _injuryHitStopDuration: 0.05
+  _hitStopScale: 0.05
+  _hitStopThrottle: 0.08
+--- !u!114 &121840700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121840684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0f38a81cccf54047bf523d518eb1158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.UI::RuneAshes.UI.SettlementScreen
+--- !u!114 &121840701
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121840684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29d7067ff0c2c044b80c53485d58195f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.RunStats
+--- !u!114 &121840702
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 121840684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7720aac6fefff4b47bfafb9610d717dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuneAshes.UI::RuneAshes.UI.UiBootstrap
+  _font: {fileID: 12800000, guid: ef0957da7e49796458aa781cdc9e3cf6, type: 3}
 --- !u!1 &178724599
 GameObject:
   m_ObjectHideFlags: 0

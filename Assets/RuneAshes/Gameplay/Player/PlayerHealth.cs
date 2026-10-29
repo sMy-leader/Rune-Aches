@@ -5,6 +5,7 @@
 //        这个类是 W3a「玩家会被打死」的最小实现。
 // 【W3 扩展】死亡结算、复活、伤害数字都从这里接。
 // ─────────────────────────────────────────────────────────────────────────────
+using System;
 using UnityEngine;
 
 namespace RuneAshes.Gameplay
@@ -40,6 +41,9 @@ namespace RuneAshes.Gameplay
             get { return _maxHealth; }
         }
 
+        /// <summary>死亡时触发一次；结算面板订阅它。</summary>
+        public event Action Died;
+
         private void Awake()
         {
             _health = _maxHealth;
@@ -68,6 +72,11 @@ namespace RuneAshes.Gameplay
             {
                 _health = 0f;
                 _dead = true;
+
+                if (Died != null)
+                {
+                    Died();
+                }
 
                 if (_animator != null)
                 {
