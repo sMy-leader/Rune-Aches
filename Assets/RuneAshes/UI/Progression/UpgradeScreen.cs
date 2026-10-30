@@ -111,7 +111,7 @@ namespace RuneAshes.UI
 
             if (GameTime.Current != null)
             {
-                GameTime.Current.PushPause();
+                GameTime.Current.PushPause();//进入一层暂停->由UI控制
                 _paused = true;
             }
 
@@ -238,7 +238,7 @@ namespace RuneAshes.UI
 
             if (_paused && GameTime.Current != null)
             {
-                GameTime.Current.PopPause();
+                GameTime.Current.PopPause();//取出一层暂停
             }
 
             _paused = false;

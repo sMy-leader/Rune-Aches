@@ -129,7 +129,7 @@ namespace RuneAshes.Framework
             {
                 return;
             }
-
+            //请求顿帧->再应用一次最终的timescale写回->防止慢动作持续
             _hitStopEnd = Time.unscaledTime + duration;
             _hitStopScale = Mathf.Clamp(scale, 0.001f, 1f);
             _hitStopActive = true;
@@ -150,7 +150,9 @@ namespace RuneAshes.Framework
             _hitStopActive = false;
             Apply();
         }
-
+        /// <summary>
+        /// 应用一次最终的timescale倍率
+        /// </summary>
         private void Apply()
         {
             Time.timeScale = EffectiveScale;

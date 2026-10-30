@@ -94,6 +94,7 @@ namespace RuneAshes.UI
         private void StartHitStop(float duration)
         {
             var time = GameTime.Current;
+            //如果时间被暂停->由暂停的事件管理
             if (time == null || time.IsPaused)
             {
                 return;
@@ -105,7 +106,7 @@ namespace RuneAshes.UI
             }
 
             _lastHitStopTime = Time.unscaledTime;
-            time.RequestHitStop(duration, _hitStopScale);
+            time.RequestHitStop(duration, _hitStopScale);//请求一次顿帧
         }
 
         private void Update()
