@@ -212,6 +212,11 @@ namespace RuneAshes.Gameplay
             return _runes != null && _runes.TryGet(id, out def) ? def.Name : id;
         }
 
+        /// <summary>
+        /// 判断修饰器数量等是否合法
+        /// </summary>
+        /// <param name="modifierId"></param>
+        /// <returns></returns>
         private bool IsValidWith(string modifierId)
         {
             var modifiers = new List<string>(_modifierIds);
@@ -247,13 +252,13 @@ namespace RuneAshes.Gameplay
                 return false;
             }
 
-            var chain = CompileCurrent();
+            var chain = CompileCurrent();//解析一次当前链
             if (chain == null || !chain.IsValid)
             {
                 return false;
             }
 
-            _caster.Configure(_triggerId, _effectId, _modifierIds.ToArray());
+            _caster.Configure(_triggerId, _effectId, _modifierIds.ToArray());//更换成新链->下一帧开火用
             return _caster.Chain != null && _caster.Chain.IsValid;
         }
 

@@ -25,6 +25,13 @@ namespace RuneAshes.Framework
             // 幸存者类必须锁帧：帧率抖动会直接影响手感与弹幕密度。
             QualitySettings.vSyncCount = 1;
             Application.targetFrameRate = TargetFrameRate;
+
+            // 时间的唯一写入者。业务代码只通过 GameTime.Current 控制暂停/顿帧。
+            if (UnityTime.Instance == null)
+            {
+                var timeService = new GameObject("TimeService");
+                timeService.AddComponent<UnityTime>();
+            }
         }
     }
 }

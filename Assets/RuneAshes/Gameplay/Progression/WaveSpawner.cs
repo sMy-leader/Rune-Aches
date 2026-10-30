@@ -105,7 +105,9 @@ namespace RuneAshes.Gameplay
             _spawned.Add(actor);
             WaveIndex++;
         }
-
+        /// <summary>
+        /// 如果当前生成的敌人已经死亡->从列表里删除，清空内存
+        /// </summary>
         private void Prune()
         {
             for (var i = _spawned.Count - 1; i >= 0; i--)

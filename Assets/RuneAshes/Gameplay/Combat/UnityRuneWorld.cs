@@ -143,7 +143,7 @@ namespace RuneAshes.Gameplay
             ApplyToHits(count, spec.Damage, DamageType.Direct, spec.Meta);
         }
 
-        //区域伤害->地雷，爆炸等
+        //区域伤害->地雷，爆炸等（若dot和爆炸会打到自己，将targetMask改一下，排除玩家层）
         public void DamageArea(AreaDamageSpec spec)
         {
             var count = Physics.OverlapSphereNonAlloc(

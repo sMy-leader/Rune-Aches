@@ -4,6 +4,7 @@
 // 【职责】只做"打中了"的即时反馈，不影响伤害结算。
 // 【顿帧】短促 0.03~0.05s；如果当前已经被暂停（升级/结算），不覆盖暂停。
 // ─────────────────────────────────────────────────────────────────────────────
+using RuneAshes.Framework;
 using RuneAshes.Gameplay;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,9 +23,6 @@ namespace RuneAshes.UI
         private TopDownCamera _camera;
         private Image _vignette;
 
-        private float _hitStopEnd;
-        private float _savedScale = 1f;
-        private bool _hitStopActive;
         private float _lastHitStopTime = -1f;
         private float _vignetteAlpha;
 
@@ -95,8 +93,8 @@ namespace RuneAshes.UI
 
         private void StartHitStop(float duration)
         {
-            // 已经被升级/结算暂停时，不要用顿帧覆盖暂停。
-            if (Time.timeScale <= 0.01f)
+            var time = GameTime.Current;
+            if (time == null || time.IsPaused)
             {
                 return;
             }
@@ -107,25 +105,11 @@ namespace RuneAshes.UI
             }
 
             _lastHitStopTime = Time.unscaledTime;
-            _savedScale = Time.timeScale;
-            Time.timeScale = _hitStopScale;
-            _hitStopEnd = Time.unscaledTime + duration;
-            _hitStopActive = true;
+            time.RequestHitStop(duration, _hitStopScale);
         }
 
         private void Update()
         {
-            if (_hitStopActive && Time.unscaledTime >= _hitStopEnd)
-            {
-                // 如果期间升级界面把时间锁到 0，恢复交给 UpgradeScreen.Close。
-                if (Time.timeScale > 0.01f)
-                {
-                    Time.timeScale = _savedScale > 0f ? _savedScale : 1f;
-                }
-
-                _hitStopActive = false;
-            }
-
             if (_vignetteAlpha > 0f)
             {
                 _vignetteAlpha = Mathf.MoveTowards(_vignetteAlpha, 0f, Time.unscaledDeltaTime * 1.8f);

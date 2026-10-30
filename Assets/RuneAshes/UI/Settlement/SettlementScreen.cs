@@ -3,6 +3,7 @@
 // 【职责】死亡后暂停并显示本局结算：存活时间、击杀、等级、构筑链、再来一局。
 // 【占位】面板/按钮仍是纯色 uGUI；正式 UI 素材到位后只替换 Sprite。
 // ─────────────────────────────────────────────────────────────────────────────
+using RuneAshes.Framework;
 using RuneAshes.Gameplay;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,6 +23,7 @@ namespace RuneAshes.UI
         private RunProgression _progression;
 
         private bool _showing;
+        private bool _paused;
 
         private void Awake()
         {
@@ -48,6 +50,11 @@ namespace RuneAshes.UI
             if (_health != null)
             {
                 _health.Died -= OnDied;
+            }
+
+            if (_paused && GameTime.Current != null)
+            {
+                GameTime.Current.PopPause();
             }
         }
 
@@ -88,7 +95,13 @@ namespace RuneAshes.UI
             }
 
             _showing = true;
-            Time.timeScale = 0f;
+
+            if (GameTime.Current != null)
+            {
+                GameTime.Current.PushPause();
+                _paused = true;
+            }
+
             _canvas.gameObject.SetActive(true);
             Refresh();
         }
@@ -111,7 +124,11 @@ namespace RuneAshes.UI
 
         private void Restart()
         {
-            Time.timeScale = 1f;
+            if (GameTime.Current != null)
+            {
+                GameTime.Current.Reset();
+            }
+
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }

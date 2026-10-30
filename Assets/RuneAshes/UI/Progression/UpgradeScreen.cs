@@ -7,6 +7,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 using System.Collections.Generic;
 using RuneAshes.Data;
+using RuneAshes.Framework;
 using RuneAshes.Gameplay;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -28,8 +29,8 @@ namespace RuneAshes.UI
         private readonly List<GameObject> _cards = new List<GameObject>();
 
         private bool _showing;
+        private bool _paused;
         private int _pendingLevels;
-        private float _previousTimeScale = 1f;
 
         private void Awake()
         {
@@ -54,6 +55,11 @@ namespace RuneAshes.UI
             if (_experience != null)
             {
                 _experience.LeveledUp -= OnLeveledUp;
+            }
+
+            if (_paused && GameTime.Current != null)
+            {
+                GameTime.Current.PopPause();
             }
         }
 
@@ -103,8 +109,11 @@ namespace RuneAshes.UI
             _showing = true;
             _pendingLevels = Mathf.Max(0, _pendingLevels - 1);
 
-            _previousTimeScale = Time.timeScale > 0f ? Time.timeScale : 1f;
-            Time.timeScale = 0f;
+            if (GameTime.Current != null)
+            {
+                GameTime.Current.PushPause();
+                _paused = true;
+            }
 
             UiTheme.EnsureEventSystem();
             _canvas.gameObject.SetActive(true);
@@ -210,6 +219,7 @@ namespace RuneAshes.UI
             }
         }
 
+        //选择卡牌->根据索引应用选择
         private void Select(int index)
         {
             if (!_showing || index < 0 || index >= _choices.Count)
@@ -225,7 +235,13 @@ namespace RuneAshes.UI
         {
             _showing = false;
             _canvas.gameObject.SetActive(false);
-            Time.timeScale = _previousTimeScale > 0f ? _previousTimeScale : 1f;
+
+            if (_paused && GameTime.Current != null)
+            {
+                GameTime.Current.PopPause();
+            }
+
+            _paused = false;
 
             if (_pendingLevels > 0)
             {

@@ -1,45 +1,159 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// 【链路】ITime ──> UnityTime（本文件，Unity 实现）
-// 【职责】把 Unity 的 Time 包成可控入口，暂停时统一返回 0。
-// 【坑】暂停时 UnscaledDeltaTime 也返回 0：如果 UI 动画/暂停菜单依赖它，会一起停住。
-//      将来接暂停菜单时，应让 UI 用真正的 Time.unscaledDeltaTime，或在这里区分"游戏时间/UI 时间"。
+// 【链路】ITime ──> UnityTime（本文件，唯一写 Time.timeScale 的地方）
+// 【职责】把暂停/顿帧/慢动作叠加成一个有效倍率，并在每帧写回 Unity。
+// 【为什么是 MonoBehaviour】顿帧需要在 unscaledTime 到点后自动过期；
+//        由 AppBootstrap 在进入场景前创建，DontDestroyOnLoad 跨场景保留。
 // ─────────────────────────────────────────────────────────────────────────────
 using UnityEngine;
 
 namespace RuneAshes.Framework
 {
-    public sealed class UnityTime : ITime
+    public sealed class UnityTime : MonoBehaviour, ITime
     {
-        private bool _isPaused;
+        public static UnityTime Instance { get; private set; }
+
+        private int _pauseDepth;
+        private float _baseScale = 1f;
+        private float _slowMotionScale = 1f;
+
+        private bool _hitStopActive;
+        private float _hitStopEnd;
+        private float _hitStopScale = 1f;
 
         public float DeltaTime
         {
-            get { return _isPaused ? 0f : Time.deltaTime; }
+            get { return Time.deltaTime; }
         }
 
         public float UnscaledDeltaTime
         {
-            get { return _isPaused ? 0f : Time.unscaledDeltaTime; }
+            get { return Time.unscaledDeltaTime; }
         }
 
-        public float TimeScale
+        public float EffectiveScale
         {
-            get { return Time.timeScale; }
-            set { Time.timeScale = value <= 0f ? 0f : value; }
+            get
+            {
+                if (_pauseDepth > 0)
+                {
+                    return 0f;
+                }
+
+                var scale = Mathf.Max(0f, _baseScale) * Mathf.Max(0f, _slowMotionScale);
+                if (_hitStopActive)
+                {
+                    scale = Mathf.Min(scale, _hitStopScale);
+                }
+
+                return Mathf.Max(0f, scale);
+            }
         }
 
-        /// <summary>
-        /// [坑] 取消暂停时会把 TimeScale 强制写回 1，可能覆盖掉暂停前设置的慢动作倍率。
-        /// 现在没有慢动作所以无害；接子弹时间时改成"保存/恢复上一个 TimeScale"。
-        /// </summary>
-        public bool IsPaused
+        public float BaseScale
         {
-            get { return _isPaused; }
+            get { return _baseScale; }
             set
             {
-                _isPaused = value;
-                Time.timeScale = value ? 0f : 1f;
+                _baseScale = Mathf.Max(0f, value);
+                Apply();
             }
+        }
+
+        public float SlowMotionScale
+        {
+            get { return _slowMotionScale; }
+            set
+            {
+                _slowMotionScale = Mathf.Max(0f, value);
+                Apply();
+            }
+        }
+
+        public bool IsPaused
+        {
+            get { return _pauseDepth > 0; }
+        }
+
+        public int PauseDepth
+        {
+            get { return _pauseDepth; }
+        }
+
+        private void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            Reset();
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
+        private void Update()
+        {
+            if (_hitStopActive && Time.unscaledTime >= _hitStopEnd)
+            {
+                _hitStopActive = false;
+            }
+
+            // 每帧写回：确保没有其他代码偷偷改 Time.timeScale。
+            Apply();
+        }
+
+        public void PushPause()
+        {
+            _pauseDepth++;
+            Apply();
+        }
+
+        public void PopPause()
+        {
+            _pauseDepth = Mathf.Max(0, _pauseDepth - 1);
+            Apply();
+        }
+
+        public void RequestHitStop(float duration, float scale)
+        {
+            if (duration <= 0f)
+            {
+                return;
+            }
+
+            _hitStopEnd = Time.unscaledTime + duration;
+            _hitStopScale = Mathf.Clamp(scale, 0.001f, 1f);
+            _hitStopActive = true;
+            Apply();
+        }
+
+        public void ClearHitStop()
+        {
+            _hitStopActive = false;
+            Apply();
+        }
+
+        public void Reset()
+        {
+            _pauseDepth = 0;
+            _baseScale = 1f;
+            _slowMotionScale = 1f;
+            _hitStopActive = false;
+            Apply();
+        }
+
+        private void Apply()
+        {
+            Time.timeScale = EffectiveScale;
         }
     }
 }
