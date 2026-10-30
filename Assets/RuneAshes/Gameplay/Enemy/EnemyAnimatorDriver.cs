@@ -27,6 +27,12 @@ namespace RuneAshes.Gameplay
         private void Awake()
         {
             _animator = GetComponent<Animator>();
+            if (_animator != null)
+            {
+                // Troll Demo.controller 的层默认权重是 0；
+                // 模板复制出来的实例如果沿用默认值，会出现"AI 在攻击但模型不动"。
+                _animator.SetLayerWeight(0, 1f);
+            }
         }
 
         /// <summary>0 = 站立，1 = 跑动。Blend Tree 的 Locomotion 参数。</summary>
@@ -38,13 +44,20 @@ namespace RuneAshes.Gameplay
             }
         }
 
-        /// <summary>随机选一个攻击动作。切片期用 UnityEngine.Random；W5 换 IRandom 以支持回放。</summary>
+        /// <summary>
+        /// 从第一帧强制播放一个攻击状态。
+        /// [为什么不用 SetTrigger] AnyState 的 Trigger 在"当前已经在同一条 Attack 状态"时
+        /// 不保证重启动画，AI 会在旧刀播到一半时又结算一次伤害。
+        /// </summary>
         public void PlayAttack()
         {
-            if (_animator != null)
+            if (_animator == null)
             {
-                _animator.SetTrigger(AttackIds[Random.Range(0, AttackIds.Length)]);
+                return;
             }
+
+            var index = Random.Range(0, AttackIds.Length);
+            _animator.Play(AttackIds[index], 0, 0f);
         }
 
         public void PlayHit()
@@ -84,6 +97,37 @@ namespace RuneAshes.Gameplay
             }
 
             return Mathf.Repeat(_animator.GetCurrentAnimatorStateInfo(0).normalizedTime, 1f);
+        }
+
+        /// <summary>
+        /// 当前攻击段的挥击峰值（归一化时间）。
+        /// 来自动画曲线里手/武器角速度峰值：Attack1≈0.44、Attack2≈0.55、Attack3≈0.39。
+        /// 不要再用一个统一的 0.45 去套三段不同节奏的攻击。
+        /// </summary>
+        public float CurrentAttackImpactNormalized()
+        {
+            if (_animator == null)
+            {
+                return 0.45f;
+            }
+
+            var info = _animator.GetCurrentAnimatorStateInfo(0);
+            if (info.IsName("Attack 1"))
+            {
+                return 0.44f;
+            }
+
+            if (info.IsName("Attack 2"))
+            {
+                return 0.55f;
+            }
+
+            if (info.IsName("Attack 3"))
+            {
+                return 0.39f;
+            }
+
+            return 0.45f;
         }
     }
 }

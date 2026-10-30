@@ -35,10 +35,6 @@ namespace RuneAshes.Gameplay
         [Header("Attack")]
         [SerializeField] private float _attackCooldown = 1.5f;
         [SerializeField] private float _windupDuration = 0.15f;
-
-        /// <summary>命中帧在攻击动画中的归一化位置（0~1）。0.45 大约是中段挥击。</summary>
-        [SerializeField] private float _attackHitNormalizedTime = 0.45f;
-
         [SerializeField] private float _damage = 10f;
         [SerializeField] private float _hitReach = 2.8f;
 
@@ -55,6 +51,12 @@ namespace RuneAshes.Gameplay
         private float _stateTime;
         private float _cooldown;
         private bool _didHit;
+
+        /// <summary>
+        /// 这一刀是否真的从第 0 帧开始播放过。
+        /// 防止 Animator 还停在上一刀的 Attack 状态时，AI 用旧归一化时间直接结算伤害。
+        /// </summary>
+        private bool _attackStateStarted;
 
         public bool IsDead
         {
@@ -169,20 +171,32 @@ namespace RuneAshes.Gameplay
                     break;
 
                 case State.AttackRecover:
-                    // 命中帧用攻击动画的归一化时间，而不是固定秒数：
-                    // Attack 1/2/3 长度不同，固定 0.5s 在短 clip 上会打空、长 clip 上会延迟。
                     var inAttack = _animator != null && _animator.IsInAttackState();
                     var normalized = _animator != null ? _animator.CurrentNormalizedTime() : 0f;
 
-                    if (!_didHit && inAttack && normalized >= _attackHitNormalizedTime)
+                    // 只有确认这一刀从起始段开始，才承认它；
+                    // 防止 Animator 还停在上一刀的 Attack 状态时，用旧归一化时间直接结算。
+                    if (inAttack && normalized < 0.25f)
+                    {
+                        _attackStateStarted = true;
+                    }
+
+                    if (_attackStateStarted && !_didHit && inAttack &&
+                        normalized >= _animator.CurrentAttackImpactNormalized())
                     {
                         _didHit = true;
                         TryDealDamage(distance);
                     }
 
-                    // 动画播完（或 2s 兜底）就回 Chase；行为判断仍然在代码里，不写进 Animator。
-                    if (_stateTime > 0.1f && (!inAttack || normalized >= 0.95f || _stateTime >= 2f))
+                    // 动画播完才回 Chase；不要用固定 2s 提前打断 2.7s 的攻击 clip。
+                    if (_attackStateStarted && (!inAttack || normalized >= 0.95f))
                     {
+                        _cooldown = _attackCooldown;
+                        Enter(State.Chase);
+                    }
+                    else if (!_attackStateStarted && _stateTime > 0.5f)
+                    {
+                        // 动画没有按预期启动（被其他状态卡住）：回 Chase，避免 AI 卡死。
                         _cooldown = _attackCooldown;
                         Enter(State.Chase);
                     }
@@ -205,6 +219,7 @@ namespace RuneAshes.Gameplay
             _state = next;
             _stateTime = 0f;
             _didHit = false;
+            _attackStateStarted = false;
         }
 
         private void Move(Vector3 direction, float dt)
