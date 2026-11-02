@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf04551d220b6ef4bb6301d83c993dc2, type: 3}
+  m_Name: UiSpriteCatalog
+  m_EditorClassIdentifier: RuneAshes.UI::RuneAshes.UI.UiSpriteCatalog
+  _panelMain: {fileID: 21300000, guid: e0f600d338999334eb02462666218123, type: 2}
+  _chainPanel: {fileID: 21300000, guid: 143d2da1366d52547b0b79124a185ab6, type: 2}
+  _cardFrameCommon: {fileID: 21300000, guid: ef33fa49e1c4949c8b661308316c02af, type: 3}
+  _healthBarPrefab: {fileID: 2914059203565708223, guid: 2dad26eb113a65140911e59df9995538, type: 3}
+  _expBarPrefab: {fileID: 6446195785215144721, guid: 9efeb707270a3d24088a85edc794c2d3, type: 3}
+  _cardFrameRare: {fileID: 21300000, guid: 46818cd3302f940aba5945759d90fdac, type: 3}
+  _cardFrameFull: {fileID: 21300000, guid: d9736877dbcfa418dbcc898e05656bac, type: 3}
+  _cardFrameIntensify: {fileID: 21300000, guid: a9083154a9dd845e38ec56b01cf01ba4, type: 3}
+  _cardIconSlot: {fileID: 21300000, guid: f0124a4afde550d43bb00849d5174ffd, type: 2}
+  _buttonPrimary: {fileID: 21300000, guid: a409e2578093c604f810d9609108c864, type: 2}
+  _buttonSecondary: {fileID: 21300000, guid: b14f7a3ebb7a1df40a0e1b7fc630bd3c, type: 2}
+  _chainSlotTrigger: {fileID: 21300000, guid: 8ca397e7e05fd2146a773abd6ffd446c, type: 2}
+  _chainSlotEffect: {fileID: 21300000, guid: 3329b2be5e3a2af41a2fae1cb40acb08, type: 2}
+  _chainSlotModifier: {fileID: 21300000, guid: e0cfbb2b3b2e8ef45a44950236693f46, type: 2}
+  _hudSlotCircle: {fileID: 21300000, guid: 14ab89e285bc5114793e8a8108c608b0, type: 2}
+  _hudSlotSquare: {fileID: 21300000, guid: 49190df2d85ba0948b504287e48838ed, type: 2}
+  _runeIcons:
+  - Id: E1
+    Icon: {fileID: 21300000, guid: d4ceef499584160429d5ce0ba80a2ce0, type: 3}
+  - Id: E2
+    Icon: {fileID: 21300000, guid: 88544a6b2d98b214ca9d2b0b29f2a4f0, type: 3}
+  - Id: E3
+    Icon: {fileID: 21300000, guid: 06c53ef6ff3cc0e4b8ad90c8995baab9, type: 3}
+  - Id: E4
+    Icon: {fileID: 21300000, guid: a659dc787ceee934581aa89c828b2ad8, type: 3}
+  - Id: E5
+    Icon: {fileID: 21300000, guid: 4d6974cde898f594e83970af35475b60, type: 3}
+  - Id: E6
+    Icon: {fileID: 21300000, guid: dce6123e336b873438a87d15d1b5b639, type: 3}
+  - Id: E7
+    Icon: {fileID: 21300000, guid: f8b4608c8e61bce42b3a467e782ae5a7, type: 3}
+  - Id: M1
+    Icon: {fileID: 21300000, guid: 9b40bc91d1f90b04a84ecbea57d44e5b, type: 3}
+  - Id: M2
+    Icon: {fileID: 21300000, guid: 027d08612b8c7e143802e27df54a2297, type: 3}
+  - Id: M3
+    Icon: {fileID: 21300000, guid: 34a249b5785c16a4cb861b5da6d3972f, type: 3}
+  - Id: M4
+    Icon: {fileID: 21300000, guid: 32ece6cca630ad643b61f81a8a796eec, type: 3}
+  - Id: M5
+    Icon: {fileID: 21300000, guid: 64335351790aa564b906ee7406091a36, type: 3}
+  - Id: M6
+    Icon: {fileID: 21300000, guid: 225c9d236b3e0434fbab5793062e4ae8, type: 3}
+  - Id: M7
+    Icon: {fileID: 21300000, guid: 7fc6e068d3e121e44aa4e18aa55c08d1, type: 3}
+  - Id: T1
+    Icon: {fileID: 21300000, guid: 8478a698fb8bde14a9237bc0acde2042, type: 3}
+  - Id: T2
+    Icon: {fileID: 21300000, guid: bcf7d06126602e243b45efbcbabc0c31, type: 3}
+  - Id: T3
+    Icon: {fileID: 21300000, guid: 6c8ae78d59421e44b9fab207ce84d7cc, type: 3}
+  - Id: T4
+    Icon: {fileID: 21300000, guid: 192dfab6d98e8ba49b8f148fcd51b71a, type: 3}
+  - Id: T5
+    Icon: {fileID: 21300000, guid: 8b5f43736d54d9b4cbc29aa559031639, type: 3}
+  - Id: T6
+    Icon: {fileID: 21300000, guid: 9757d01e753795e4c98cb9ecfe80459a, type: 3}

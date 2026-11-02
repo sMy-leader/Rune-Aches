@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// 【职责】UI 的唯一主题来源：颜色、字体、纯色 Sprite、Canvas/Text/Image 工厂。
-// 【为什么用纯色占位】正式 UI 素材还没到位；先保证布局/交互/可读性，
-//        素材到位后只替换 Sprite，不改布局代码。
-// 【字体】暂时用系统微软雅黑（Windows 可用）；正式版换成思源黑体 + TMP。
+// 【职责】UI 的唯一主题来源：颜色、TMP 字体、纯色 Sprite、Canvas/Text/Image 工厂。
+// 【字体】正式 UI 统一走 TextMeshPro；中文使用动态 SDF 的思源黑体。
+//        字体资产在 Assets/RuneAshes/UI/Resources/Fonts/。
 // ─────────────────────────────────────────────────────────────────────────────
 using RuneAshes.Data;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
@@ -24,12 +24,24 @@ namespace RuneAshes.UI
         public static readonly Color Silver = new Color(0.79f, 0.83f, 0.82f, 1f);
         public static readonly Color Danger = new Color(0.85f, 0.36f, 0.31f, 1f);
 
-        private static Font _font;
-        private static Font _fontOverride;
+        private static TMP_FontAsset _font;
+        private static TMP_FontAsset _fontOverride;
         private static Sprite _white;
+        private static UiSpriteCatalog _catalog;
 
-        /// <summary>由 UiBootstrap 在启动时注入正式字体（思源黑体）；为空时回退系统字体。</summary>
-        public static void SetFont(Font font)
+        /// <summary>由 UiBootstrap 在启动时注入正式 Sprite 目录；为空时全部回退纯色占位。</summary>
+        public static void SetCatalog(UiSpriteCatalog catalog)
+        {
+            _catalog = catalog;
+        }
+
+        public static UiSpriteCatalog Catalog
+        {
+            get { return _catalog; }
+        }
+
+        /// <summary>由 UiBootstrap 在启动时注入思源 TMP 字体；为空时从 Resources 兜底。</summary>
+        public static void SetFont(TMP_FontAsset font)
         {
             if (font != null)
             {
@@ -38,7 +50,7 @@ namespace RuneAshes.UI
             }
         }
 
-        public static Font Font
+        public static TMP_FontAsset Font
         {
             get
             {
@@ -49,11 +61,10 @@ namespace RuneAshes.UI
 
                 if (_font == null)
                 {
-                    _font = UnityEngine.Font.CreateDynamicFontFromOSFont(
-                        new[] { "Microsoft YaHei", "SimHei", "Noto Sans CJK SC", "Arial" }, 24);
+                    _font = Resources.Load<TMP_FontAsset>("Fonts/SourceHanSansSC");
                     if (_font == null)
                     {
-                        _font = Resources.GetBuiltinResource<UnityEngine.Font>("LegacyRuntime.ttf");
+                        _font = TMP_Settings.defaultFontAsset;
                     }
                 }
 
@@ -106,7 +117,8 @@ namespace RuneAshes.UI
         }
 
         public static Image CreateImage(Transform parent, string name, Color color, Vector2 size,
-            Vector2 position, bool raycast = false)
+            Vector2 position, bool raycast = false, Sprite sprite = null, bool preserveAspect = false,
+            bool sliced = false)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             var rect = go.GetComponent<RectTransform>();
@@ -118,16 +130,21 @@ namespace RuneAshes.UI
             rect.anchoredPosition = position;
 
             var image = go.GetComponent<Image>();
-            image.sprite = White;
+            image.sprite = sprite != null ? sprite : White;
             image.color = color;
+            image.type = sprite != null && sliced && sprite.border != Vector4.zero
+                ? Image.Type.Sliced
+                : Image.Type.Simple;
+            image.preserveAspect = preserveAspect;
             image.raycastTarget = raycast;
             return image;
         }
 
-        public static Text CreateText(Transform parent, string name, string content, int fontSize,
-            Color color, TextAnchor alignment, Vector2 size, Vector2 position)
+        public static TextMeshProUGUI CreateText(Transform parent, string name, string content,
+            int fontSize, Color color, TextAnchor alignment, Vector2 size, Vector2 position)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+            var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer),
+                typeof(TextMeshProUGUI));
             var rect = go.GetComponent<RectTransform>();
             rect.SetParent(parent, false);
             rect.anchorMin = new Vector2(0.5f, 0.5f);
@@ -136,16 +153,33 @@ namespace RuneAshes.UI
             rect.sizeDelta = size;
             rect.anchoredPosition = position;
 
-            var text = go.GetComponent<Text>();
+            var text = go.GetComponent<TextMeshProUGUI>();
             text.text = content;
             text.font = Font;
             text.fontSize = fontSize;
             text.color = color;
-            text.alignment = alignment;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.alignment = ToTmpAlignment(alignment);
+            text.enableWordWrapping = true;
+            text.overflowMode = TextOverflowModes.Overflow;
             text.raycastTarget = false;
             return text;
+        }
+
+        private static TextAlignmentOptions ToTmpAlignment(TextAnchor anchor)
+        {
+            switch (anchor)
+            {
+                case TextAnchor.UpperLeft: return TextAlignmentOptions.TopLeft;
+                case TextAnchor.UpperCenter: return TextAlignmentOptions.Top;
+                case TextAnchor.UpperRight: return TextAlignmentOptions.TopRight;
+                case TextAnchor.MiddleLeft: return TextAlignmentOptions.Left;
+                case TextAnchor.MiddleCenter: return TextAlignmentOptions.Center;
+                case TextAnchor.MiddleRight: return TextAlignmentOptions.Right;
+                case TextAnchor.LowerLeft: return TextAlignmentOptions.BottomLeft;
+                case TextAnchor.LowerCenter: return TextAlignmentOptions.Bottom;
+                case TextAnchor.LowerRight: return TextAlignmentOptions.BottomRight;
+                default: return TextAlignmentOptions.Center;
+            }
         }
 
         public static void EnsureEventSystem()

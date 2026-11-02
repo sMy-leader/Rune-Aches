@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 using RuneAshes.Framework;
 using RuneAshes.Gameplay;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -14,8 +15,8 @@ namespace RuneAshes.UI
     public sealed class SettlementScreen : MonoBehaviour
     {
         private Canvas _canvas;
-        private Text _statsText;
-        private Text _chainText;
+        private TMP_Text _statsText;
+        private TMP_Text _chainText;
 
         private PlayerHealth _health;
         private RunStats _stats;
@@ -62,8 +63,10 @@ namespace RuneAshes.UI
         {
             var overlay = UiTheme.CreateImage(_canvas.transform, "Overlay",
                 new Color(0f, 0f, 0f, 0.80f), new Vector2(1920f, 1080f), Vector2.zero, true);
-            var panel = UiTheme.CreateImage(overlay.transform, "Panel", UiTheme.Bg,
-                new Vector2(1100f, 640f), Vector2.zero);
+            var panelSprite = UiTheme.Catalog != null ? UiTheme.Catalog.PanelMain : null;
+            var panel = UiTheme.CreateImage(overlay.transform, "Panel",
+                panelSprite != null ? Color.white : UiTheme.Bg,
+                new Vector2(1100f, 640f), Vector2.zero, sprite: panelSprite);
 
             UiTheme.CreateImage(panel.transform, "TopLine", UiTheme.Danger,
                 new Vector2(1100f, 4f), new Vector2(0f, 318f));
@@ -77,9 +80,12 @@ namespace RuneAshes.UI
             _chainText = UiTheme.CreateText(panel.transform, "Chain", "—", 18, UiTheme.Cyan,
                 TextAnchor.MiddleCenter, new Vector2(900f, 60f), new Vector2(0f, -80f));
 
-            var buttonImage = UiTheme.CreateImage(panel.transform, "Restart", UiTheme.Amber,
-                new Vector2(280f, 68f), new Vector2(0f, -235f), true);
-            UiTheme.CreateText(buttonImage.transform, "Label", "再来一局", 24, UiTheme.Bg,
+            var buttonSprite = UiTheme.Catalog != null ? UiTheme.Catalog.ButtonPrimary : null;
+            var buttonImage = UiTheme.CreateImage(panel.transform, "Restart",
+                buttonSprite != null ? Color.white : UiTheme.Amber,
+                new Vector2(280f, 68f), new Vector2(0f, -235f), true, buttonSprite, false, true);
+            UiTheme.CreateText(buttonImage.transform, "Label", "再来一局", 24,
+                buttonSprite != null ? UiTheme.TextColor : UiTheme.Bg,
                 TextAnchor.MiddleCenter, new Vector2(280f, 68f), Vector2.zero);
 
             var button = buttonImage.gameObject.AddComponent<Button>();

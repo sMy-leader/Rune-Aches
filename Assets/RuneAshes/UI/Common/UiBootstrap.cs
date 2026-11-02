@@ -3,6 +3,7 @@
 // 【执行顺序】-1000：保证 HudView / UpgradeScreen / SettlementScreen 读到的已经是正式字体。
 // 【兜底】字体没赋值时 UiTheme 回退系统微软雅黑，Windows 构建仍可读中文。
 // ─────────────────────────────────────────────────────────────────────────────
+using TMPro;
 using UnityEngine;
 
 namespace RuneAshes.UI
@@ -10,13 +11,25 @@ namespace RuneAshes.UI
     [DefaultExecutionOrder(-1000)]
     public sealed class UiBootstrap : MonoBehaviour
     {
-        [SerializeField] private Font _font;
+        [SerializeField] private TMP_FontAsset _fontAsset;
+        [SerializeField] private UiSpriteCatalog _catalog;
 
         private void Awake()
         {
-            if (_font != null)
+            var font = _fontAsset != null
+                ? _fontAsset
+                : Resources.Load<TMP_FontAsset>("Fonts/SourceHanSansSC");
+            if (font != null)
             {
-                UiTheme.SetFont(_font);
+                UiTheme.SetFont(font);
+            }
+
+            var catalog = _catalog != null
+                ? _catalog
+                : Resources.Load<UiSpriteCatalog>("UiSpriteCatalog");
+            if (catalog != null)
+            {
+                UiTheme.SetCatalog(catalog);
             }
         }
     }

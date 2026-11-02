@@ -5,6 +5,8 @@
         "RuneAshes.Data",
         "RuneAshes.Framework",
         "RuneAshes.Gameplay",
+        "RuneAshes.UI",
+        "Unity.TextMeshPro",
         "Unity.InputSystem"
     ],
     "includePlatforms": [

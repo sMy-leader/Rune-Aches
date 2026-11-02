@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using RuneAshes.Data;
 using RuneAshes.Framework;
 using RuneAshes.Gameplay;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -19,8 +20,8 @@ namespace RuneAshes.UI
     {
         private Canvas _canvas;
         private RectTransform _cardRoot;
-        private Text _title;
-        private Text _hint;
+        private TMP_Text _title;
+        private TMP_Text _hint;
 
         private RunProgression _progression;
         private ExperienceSystem _experience;
@@ -77,8 +78,10 @@ namespace RuneAshes.UI
             var overlay = UiTheme.CreateImage(_canvas.transform, "Overlay",
                 new Color(0f, 0f, 0f, 0.72f), new Vector2(1920f, 1080f), Vector2.zero, true);
 
-            var panel = UiTheme.CreateImage(overlay.transform, "Panel", UiTheme.Bg,
-                new Vector2(1440f, 780f), Vector2.zero);
+            var panelSprite = UiTheme.Catalog != null ? UiTheme.Catalog.PanelMain : null;
+            var panel = UiTheme.CreateImage(overlay.transform, "Panel",
+                panelSprite != null ? Color.white : UiTheme.Bg,
+                new Vector2(1440f, 780f), Vector2.zero, sprite: panelSprite);
 
             UiTheme.CreateImage(panel.transform, "TopLine", UiTheme.Amber,
                 new Vector2(1440f, 4f), new Vector2(0f, 388f));
@@ -134,10 +137,13 @@ namespace RuneAshes.UI
 
             if (_choices.Count == 0)
             {
+                var buttonSprite = UiTheme.Catalog != null ? UiTheme.Catalog.ButtonPrimary : null;
                 var continueImage = UiTheme.CreateImage(_cardRoot, "Continue",
-                    UiTheme.Amber, new Vector2(240f, 64f), new Vector2(0f, -300f), true);
+                    buttonSprite != null ? Color.white : UiTheme.Amber,
+                    new Vector2(240f, 64f), new Vector2(0f, -300f), true, buttonSprite, false, true);
                 UiTheme.CreateText(continueImage.transform, "Label", "继续", 22,
-                    UiTheme.Bg, TextAnchor.MiddleCenter, new Vector2(240f, 64f), Vector2.zero);
+                    buttonSprite != null ? UiTheme.TextColor : UiTheme.Bg,
+                    TextAnchor.MiddleCenter, new Vector2(240f, 64f), Vector2.zero);
 
                 var button = continueImage.gameObject.AddComponent<Button>();
                 button.targetGraphic = continueImage;
@@ -157,17 +163,31 @@ namespace RuneAshes.UI
             var categoryColor = UiTheme.CategoryColor(rune.Category);
             var x = (index - (total - 1) * 0.5f) * 380f;
 
-            var card = UiTheme.CreateImage(_cardRoot, "Card_" + rune.Id, UiTheme.Slate,
-                new Vector2(320f, 440f), new Vector2(x, 0f), true);
+            var catalog = UiTheme.Catalog;
+            var frameSprite = catalog != null ? catalog.CardFrameCommon : null;
+            var card = UiTheme.CreateImage(_cardRoot, "Card_" + rune.Id,
+                frameSprite != null ? Color.white : UiTheme.Slate,
+                new Vector2(320f, 440f), new Vector2(x, 0f), true, frameSprite, true);
 
             UiTheme.CreateImage(card.transform, "TopStrip", categoryColor,
                 new Vector2(320f, 6f), new Vector2(0f, 217f));
 
+            var slotSprite = catalog != null ? catalog.CardIconSlot : null;
             var iconBg = UiTheme.CreateImage(card.transform, "IconBg",
-                Color.Lerp(UiTheme.Slate, categoryColor, 0.28f),
-                new Vector2(180f, 180f), new Vector2(0f, 90f));
-            UiTheme.CreateText(iconBg.transform, "IconId", rune.Id, 44, categoryColor,
-                TextAnchor.MiddleCenter, new Vector2(180f, 180f), Vector2.zero);
+                slotSprite != null ? Color.white : Color.Lerp(UiTheme.Slate, categoryColor, 0.28f),
+                new Vector2(180f, 180f), new Vector2(0f, 90f), false, slotSprite, true);
+
+            Sprite runeIcon;
+            if (catalog != null && catalog.TryGetRuneIcon(rune.Id, out runeIcon))
+            {
+                UiTheme.CreateImage(iconBg.transform, "Icon", Color.white,
+                    new Vector2(128f, 128f), Vector2.zero, false, runeIcon, true);
+            }
+            else
+            {
+                UiTheme.CreateText(iconBg.transform, "IconId", rune.Id, 44, categoryColor,
+                    TextAnchor.MiddleCenter, new Vector2(180f, 180f), Vector2.zero);
+            }
 
             UiTheme.CreateText(card.transform, "Name", rune.Name, 24, categoryColor,
                 TextAnchor.MiddleCenter, new Vector2(300f, 34f), new Vector2(0f, -30f));

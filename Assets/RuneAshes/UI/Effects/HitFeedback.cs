@@ -6,6 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 using RuneAshes.Framework;
 using RuneAshes.Gameplay;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -128,7 +129,7 @@ namespace RuneAshes.UI
 
         private float _age;
         private Color _color;
-        private TextMesh _text;
+        private TMP_Text _text;
         private Vector3 _startScale;
 
         public static void Create(Vector3 worldPosition, string content, Color color)
@@ -142,14 +143,13 @@ namespace RuneAshes.UI
                 ? camera.transform.rotation
                 : Quaternion.Euler(55f, 0f, 0f);
 
-            var text = go.AddComponent<TextMesh>();
+            var text = go.AddComponent<TextMeshPro>();
             text.text = content;
             text.font = UiTheme.Font;
-            text.fontSize = 64;
-            text.characterSize = 0.075f;
-            text.anchor = TextAnchor.MiddleCenter;
-            text.alignment = TextAlignment.Center;
+            text.fontSize = 12f;
+            text.alignment = TextAlignmentOptions.Center;
             text.color = color;
+            go.transform.localScale = Vector3.one * 0.2f;
 
             var renderer = go.GetComponent<MeshRenderer>();
             if (renderer == null)
@@ -157,7 +157,11 @@ namespace RuneAshes.UI
                 renderer = go.AddComponent<MeshRenderer>();
             }
 
-            renderer.sharedMaterial = text.font.material;
+            if (text.fontSharedMaterial != null)
+            {
+                renderer.sharedMaterial = text.fontSharedMaterial;
+            }
+
             renderer.sortingOrder = 20;
 
             var floating = go.AddComponent<FloatingDamageText>();
