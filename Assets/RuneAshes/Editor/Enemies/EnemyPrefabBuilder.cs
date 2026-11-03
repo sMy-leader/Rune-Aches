@@ -12,9 +12,9 @@ namespace RuneAshes.Editor
     public static class EnemyPrefabBuilder
     {
         private const string RangedPath =
-            "Assets/Art/Incoming/Enemy_Ranged/Prefabs/Enemy_Ranged.prefab";
+            "Assets/Art/Enemies/Ranged/Prefabs/Enemy_Ranged.prefab";
         private const string BomberPath =
-            "Assets/Art/Incoming/Enemy_Bomber/Characters/Bomber Bug/_Prefabs/Enemy_Bomber.prefab";
+            "Assets/Art/Enemies/Bomber/Characters/Bomber Bug/_Prefabs/Enemy_Bomber.prefab";
 
         [MenuItem("Rune Ashes/Enemies/Build Enemy Prefabs")]
         public static void Build()

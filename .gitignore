@@ -64,6 +64,16 @@ desktop.ini
 /Assets/Art/Incoming/
 /Assets/Art/Incoming.meta
 
+# ---- 迁移后的本地敌人/玩家源资产（约 2.6GB，不入 Git） ----
+/Assets/Art/Enemies/Melee/
+/Assets/Art/Enemies/Melee.meta
+/Assets/Art/Enemies/Ranged/
+/Assets/Art/Enemies/Ranged.meta
+/Assets/Art/Enemies/Bomber/
+/Assets/Art/Enemies/Bomber.meta
+/Assets/Art/Characters/Player/
+/Assets/Art/Characters/Player.meta
+
 # ---- Reasonix 会话附件（本地临时） ----
 .reasonix/
 
