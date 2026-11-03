@@ -13,6 +13,8 @@ namespace RuneAshes.Gameplay
     public sealed class WaveSpawner : MonoBehaviour
     {
         [SerializeField] private GameObject _enemyTemplate;
+        [SerializeField] private GameObject _rangedTemplate;
+        [SerializeField] private GameObject _bomberTemplate;
         [SerializeField] private float _spawnInterval = 10f;
         [SerializeField] private int _maxAlive = 3;
         [SerializeField] private float _spawnRadius = 12f;
@@ -35,6 +37,16 @@ namespace RuneAshes.Gameplay
         public GameObject EnemyTemplate
         {
             set { _enemyTemplate = value; }
+        }
+
+        public GameObject RangedTemplate
+        {
+            set { _rangedTemplate = value; }
+        }
+
+        public GameObject BomberTemplate
+        {
+            set { _bomberTemplate = value; }
         }
 
         private void Awake()
@@ -84,14 +96,27 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
+            var kind = (EnemyKind)(WaveIndex % 3);
+            var template = kind == EnemyKind.Ranged && _rangedTemplate != null
+                ? _rangedTemplate
+                : kind == EnemyKind.Bomber && _bomberTemplate != null
+                    ? _bomberTemplate
+                    : _enemyTemplate;
+
             var angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
             var offset = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * _spawnRadius;
             var position = _player.transform.position + offset;
             position.y = 0.235f;
 
-            // 模板是 inactive 的场景副本；实例化后立即激活，Awake/Start 会正常执行。
-            var instance = Instantiate(_enemyTemplate, position, Quaternion.identity);
-            instance.name = "Troll_Wave_" + (WaveIndex + 1);
+            // 模板是 inactive 的场景副本或 prefab 资产；实例化后立即激活。
+            var instance = Instantiate(template, position, Quaternion.identity);
+            var brain = instance.GetComponent<EnemyBrain>();
+            if (brain != null)
+            {
+                brain.SetKind(kind);
+            }
+
+            instance.name = kind + "_Wave_" + (WaveIndex + 1);
             instance.SetActive(true);
 
             var actor = instance.GetComponent<EnemyActor>();

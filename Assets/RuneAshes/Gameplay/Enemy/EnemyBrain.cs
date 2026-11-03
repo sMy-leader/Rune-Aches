@@ -7,10 +7,18 @@
 //   将来换成 Flow Field / Job 时不用重写动画资产。
 // 【W3 扩展】远程/自爆怪复用同一个接口：改 _attackRange / _windup / 命中逻辑即可。
 // ─────────────────────────────────────────────────────────────────────────────
+using System.Collections;
 using UnityEngine;
 
 namespace RuneAshes.Gameplay
 {
+    public enum EnemyKind
+    {
+        Melee,
+        Ranged,
+        Bomber
+    }
+
     [RequireComponent(typeof(CharacterController))]
     public sealed class EnemyBrain : MonoBehaviour
     {
@@ -20,9 +28,14 @@ namespace RuneAshes.Gameplay
             Chase,
             AttackWindup,
             AttackRecover,
+            Aim,
+            Fuse,
             HitStun,
             Dead
         }
+
+        [Header("Kind")]
+        [SerializeField] private EnemyKind _kind = EnemyKind.Melee;
 
         [Header("Detection")]
         [SerializeField] private float _detectRange = 12f;
@@ -38,11 +51,27 @@ namespace RuneAshes.Gameplay
         [SerializeField] private float _damage = 10f;
         [SerializeField] private float _hitReach = 2.8f;
 
+        [Header("Ranged")]
+        [SerializeField] private float _rangedRange = 7f;
+        [SerializeField] private float _rangedMinRange = 4f;
+        [SerializeField] private float _rangedWindup = 0.4f;
+        [SerializeField] private float _rangedCooldown = 2f;
+        [SerializeField] private float _projectileDamage = 8f;
+        [SerializeField] private float _projectileSpeed = 10f;
+
+        [Header("Bomber")]
+        [SerializeField] private float _fuseRange = 2.2f;
+        [SerializeField] private float _fuseDuration = 0.8f;
+        [SerializeField] private float _explosionRadius = 3f;
+        [SerializeField] private float _explosionDamage = 20f;
+        [SerializeField] private float _explosionDamageDelay = 0.3f;
+        [SerializeField] private float _explosionDeathDelay = 1.1f;
+
         [Header("Hit")]
         [SerializeField] private float _hitStunDuration = 0.25f;
 
         private CharacterController _controller;
-        private EnemyAnimatorDriver _animator;
+        private IEnemyAnimator _animator;
         private EnemyActor _actor;
         private PlayerHealth _target;
         private UnityRuneWorld _world;
@@ -51,6 +80,7 @@ namespace RuneAshes.Gameplay
         private float _stateTime;
         private float _cooldown;
         private bool _didHit;
+        private bool _exploding;
 
         /// <summary>
         /// 这一刀是否真的从第 0 帧开始播放过。
@@ -63,10 +93,21 @@ namespace RuneAshes.Gameplay
             get { return _state == State.Dead; }
         }
 
+        public EnemyKind Kind
+        {
+            get { return _kind; }
+        }
+
+        /// <summary>由 WaveSpawner 在实例激活前设置；模板本身保持 Melee。</summary>
+        public void SetKind(EnemyKind kind)
+        {
+            _kind = kind;
+        }
+
         private void Awake()
         {
             _controller = GetComponent<CharacterController>();
-            _animator = GetComponent<EnemyAnimatorDriver>();
+            _animator = GetComponent<IEnemyAnimator>();
             _actor = GetComponent<EnemyActor>();
             _world = FindFirstObjectByType<UnityRuneWorld>();
         }
@@ -95,6 +136,27 @@ namespace RuneAshes.Gameplay
             if (_animator != null)
             {
                 _animator.SetLocomotion(0f);
+            }
+
+            ApplyKindVisual();
+        }
+
+        private void ApplyKindVisual()
+        {
+            // 只有占位 Troll 需要按 Kind 染色；真实 Wraith/Bomber 使用自己的材质。
+            if (_kind != EnemyKind.Melee)
+            {
+                return;
+            }
+
+            var color = Color.white;
+            var renderers = GetComponentsInChildren<Renderer>(true);
+            for (var i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null)
+                {
+                    renderers[i].material.color = color;
+                }
             }
         }
 
@@ -142,6 +204,50 @@ namespace RuneAshes.Gameplay
                 case State.Chase:
                     Face(toTarget, dt);
 
+                    if (_kind == EnemyKind.Ranged)
+                    {
+                        if (distance < _rangedMinRange)
+                        {
+                            // 太近就后撤，和近战/自爆的贴脸行为区分开。
+                            Move(-toTarget.normalized, dt);
+                            _animator.SetLocomotion(1f);
+                        }
+                        else if (distance > _rangedRange)
+                        {
+                            Move(toTarget.normalized, dt);
+                            _animator.SetLocomotion(1f);
+                        }
+                        else
+                        {
+                            _animator.SetLocomotion(0f);
+                            if (_cooldown <= 0f)
+                            {
+                                Enter(State.Aim);
+                            }
+                        }
+
+                        break;
+                    }
+
+                    if (_kind == EnemyKind.Bomber)
+                    {
+                        if (distance > _fuseRange)
+                        {
+                            Move(toTarget.normalized, dt);
+                            _animator.SetLocomotion(1f);
+                        }
+                        else
+                        {
+                            _animator.SetLocomotion(0f);
+                            if (_cooldown <= 0f)
+                            {
+                                Enter(State.Fuse);
+                            }
+                        }
+
+                        break;
+                    }
+
                     if (distance <= _attackRange && _cooldown <= 0f)
                     {
                         Enter(State.AttackWindup);//到达攻击距离
@@ -155,6 +261,31 @@ namespace RuneAshes.Gameplay
                     {
                         // 已经在攻击距离内但还在冷却：停下来等，不要贴脸抖动。
                         _animator.SetLocomotion(0f);
+                    }
+
+                    break;
+
+                case State.Aim:
+                    Face(toTarget, dt);
+                    _animator.SetLocomotion(0f);
+                    if (_stateTime >= _rangedWindup)
+                    {
+                        FireProjectile();
+                        _cooldown = _rangedCooldown;
+                        Enter(State.Chase);
+                    }
+
+                    break;
+
+                case State.Fuse:
+                    Face(toTarget, dt);
+                    _animator.SetLocomotion(0f);
+                    // 引信期间轻微膨胀，给玩家“要炸了”的占位反馈。
+                    var pulse = 1f + Mathf.Sin(_stateTime * 26f) * 0.06f;
+                    transform.localScale = Vector3.one * pulse;
+                    if (_stateTime >= _fuseDuration)
+                    {
+                        Explode();
                     }
 
                     break;
@@ -253,6 +384,75 @@ namespace RuneAshes.Gameplay
             // 敌人攻击不属于符文链：ChainId=0、Depth=0，不会被递归闸门误判。
             var meta = new CastMeta { ChainId = 0, CastId = 0, Depth = 0, Seed = 0 };
             _target.ApplyDamage(new DamageEvent(meta, _damage, DamageType.Direct));
+        }
+
+        private void FireProjectile()
+        {
+            if (_target == null || !_target.IsAlive)
+            {
+                return;
+            }
+
+            var origin = transform.position + Vector3.up * 1.3f;
+            var targetPoint = _target.Position + Vector3.up * 1.0f;
+            var direction = targetPoint - origin;
+            if (direction.sqrMagnitude < 0.0001f)
+            {
+                return;
+            }
+
+            if (_animator != null)
+            {
+                _animator.PlayAttack();
+            }
+
+            EnemyProjectile.Spawn(origin, direction.normalized, _projectileDamage, _projectileSpeed, _target);
+        }
+
+        private void Explode()
+        {
+            if (_exploding)
+            {
+                return;
+            }
+
+            _exploding = true;
+            if (_animator != null)
+            {
+                _animator.PlayExplode();
+            }
+
+            StartCoroutine(ExplodeRoutine());
+        }
+
+        private IEnumerator ExplodeRoutine()
+        {
+            // 先让 explode 动画进入，再把伤害结算到玩家。
+            yield return new WaitForSeconds(_explosionDamageDelay);
+
+            var meta = new CastMeta { ChainId = 0, CastId = 0, Depth = 0, Seed = 0 };
+            if (_target != null && _target.IsAlive)
+            {
+                var distance = Vector3.Distance(transform.position, _target.Position);
+                if (distance <= _explosionRadius)
+                {
+                    _target.ApplyDamage(new DamageEvent(meta, _explosionDamage, DamageType.Explosion));
+                }
+            }
+
+            // 爆炸动画播到后段再让本体死亡，避免 death 立刻覆盖 explode。
+            var remaining = Mathf.Max(0f, _explosionDeathDelay - _explosionDamageDelay);
+            yield return new WaitForSeconds(remaining);
+
+            transform.localScale = Vector3.one;
+            if (_actor != null)
+            {
+                _actor.ApplyDamage(new DamageEvent(meta, _actor.MaxHealth + 1f, DamageType.Explosion));
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
 
         private void OnDamaged(EnemyActor actor, DamageEvent damage)

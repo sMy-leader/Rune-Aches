@@ -9,7 +9,7 @@ using UnityEngine;
 namespace RuneAshes.Gameplay
 {
     [RequireComponent(typeof(Animator))]
-    public sealed class EnemyAnimatorDriver : MonoBehaviour
+    public sealed class EnemyAnimatorDriver : MonoBehaviour, IEnemyAnimator
     {
         private static readonly int LocomotionId = Animator.StringToHash("Locomotion");
         private static readonly int GotHitId = Animator.StringToHash("Got Hit");
@@ -74,6 +74,11 @@ namespace RuneAshes.Gameplay
             {
                 _animator.SetTrigger(DeathId);
             }
+        }
+
+        public void PlayExplode()
+        {
+            // Troll 没有自爆动画；由 BomberAnimatorDriver 覆盖。
         }
 
         /// <summary>当前是否在 Attack 1/2/3 状态。命中帧判断要先确认还在攻击动画里。</summary>
