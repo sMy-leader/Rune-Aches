@@ -31,6 +31,10 @@ namespace RuneAshes.UI
             {
                 UiTheme.SetCatalog(catalog);
             }
+
+            // 任何 UI 交互都依赖 EventSystem；不能只在升级界面里临时创建，
+            // 否则玩家未升级就死亡时，结算按钮没有输入系统。
+            UiTheme.EnsureEventSystem();
         }
     }
 }

@@ -18,10 +18,10 @@ namespace RuneAshes.UI
 {
     public sealed class UpgradeScreen : MonoBehaviour
     {
-        private Canvas _canvas;
-        private RectTransform _cardRoot;
-        private TMP_Text _title;
-        private TMP_Text _hint;
+        [SerializeField] private Canvas _canvas;
+        [SerializeField] private RectTransform _cardRoot;
+        [SerializeField] private TMP_Text _title;
+        [SerializeField] private TMP_Text _hint;
 
         private RunProgression _progression;
         private ExperienceSystem _experience;
@@ -35,9 +35,29 @@ namespace RuneAshes.UI
 
         private void Awake()
         {
+            if (_canvas != null)
+            {
+                BindExisting();
+                _canvas.gameObject.SetActive(false);
+                return;
+            }
+
             _canvas = UiTheme.CreateCanvas("UpgradeCanvas", 100);
             BuildShell();
             _canvas.gameObject.SetActive(false);
+        }
+
+        private void BindExisting()
+        {
+            var panel = _canvas.transform.Find("Overlay/Panel");
+            if (panel == null)
+            {
+                return;
+            }
+
+            _cardRoot = panel.Find("Cards") as RectTransform;
+            _title = panel.Find("Title") != null ? panel.Find("Title").GetComponent<TMP_Text>() : null;
+            _hint = panel.Find("Hint") != null ? panel.Find("Hint").GetComponent<TMP_Text>() : null;
         }
 
         private void Start()
@@ -147,6 +167,13 @@ namespace RuneAshes.UI
 
                 var button = continueImage.gameObject.AddComponent<Button>();
                 button.targetGraphic = continueImage;
+                button.transition = Selectable.Transition.ColorTint;
+                var colors = button.colors;
+                colors.normalColor = Color.white;
+                colors.highlightedColor = UiTheme.Amber;
+                colors.pressedColor = Color.Lerp(UiTheme.Amber, Color.white, 0.35f);
+                colors.selectedColor = UiTheme.Amber;
+                button.colors = colors;
                 button.onClick.AddListener(Close);
                 _cards.Add(continueImage.gameObject);
                 return;
@@ -164,7 +191,7 @@ namespace RuneAshes.UI
             var x = (index - (total - 1) * 0.5f) * 380f;
 
             var catalog = UiTheme.Catalog;
-            var frameSprite = catalog != null ? catalog.CardFrameCommon : null;
+            var frameSprite = GetFrameSprite(catalog, rune.Rarity);
             var card = UiTheme.CreateImage(_cardRoot, "Card_" + rune.Id,
                 frameSprite != null ? Color.white : UiTheme.Slate,
                 new Vector2(320f, 440f), new Vector2(x, 0f), true, frameSprite, true);
@@ -200,6 +227,7 @@ namespace RuneAshes.UI
 
             var button = card.gameObject.AddComponent<Button>();
             button.targetGraphic = card;
+            button.transition = Selectable.Transition.ColorTint;
             var colors = button.colors;
             colors.normalColor = Color.white;
             colors.highlightedColor = categoryColor;
@@ -210,6 +238,26 @@ namespace RuneAshes.UI
             var captured = index;
             button.onClick.AddListener(() => Select(captured));
             _cards.Add(card.gameObject);
+        }
+
+        private static Sprite GetFrameSprite(UiSpriteCatalog catalog, RuneRarity rarity)
+        {
+            if (catalog == null)
+            {
+                return null;
+            }
+
+            switch (rarity)
+            {
+                case RuneRarity.Rare:
+                    return catalog.CardFrameRare;
+                case RuneRarity.Intensify:
+                    return catalog.CardFrameIntensify;
+                case RuneRarity.Full:
+                    return catalog.CardFrameFull;
+                default:
+                    return catalog.CardFrameCommon;
+            }
         }
 
         private void Update()

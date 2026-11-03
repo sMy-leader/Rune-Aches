@@ -162,7 +162,7 @@ namespace RuneAshes.EditorTools
             text.fontSize = fontSize;
             text.color = color;
             text.alignment = ToTmpAlignment(alignment);
-            text.enableWordWrapping = true;
+            text.textWrappingMode = TextWrappingModes.Normal;
             text.overflowMode = TextOverflowModes.Overflow;
             text.raycastTarget = false;
             return text;

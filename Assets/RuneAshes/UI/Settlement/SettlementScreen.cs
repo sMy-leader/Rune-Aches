@@ -14,9 +14,10 @@ namespace RuneAshes.UI
 {
     public sealed class SettlementScreen : MonoBehaviour
     {
-        private Canvas _canvas;
-        private TMP_Text _statsText;
-        private TMP_Text _chainText;
+        [SerializeField] private Canvas _canvas;
+        [SerializeField] private TMP_Text _statsText;
+        [SerializeField] private TMP_Text _chainText;
+        [SerializeField] private Button _restartButton;
 
         private PlayerHealth _health;
         private RunStats _stats;
@@ -28,9 +29,51 @@ namespace RuneAshes.UI
 
         private void Awake()
         {
+            if (_canvas != null)
+            {
+                BindExisting();
+                _canvas.gameObject.SetActive(false);
+                return;
+            }
+
             _canvas = UiTheme.CreateCanvas("SettlementCanvas", 200);
             Build();
             _canvas.gameObject.SetActive(false);
+        }
+
+        private void BindExisting()
+        {
+            var panel = _canvas.transform.Find("Overlay/Panel");
+            if (panel == null)
+            {
+                return;
+            }
+
+            _statsText = panel.Find("Stats") != null ? panel.Find("Stats").GetComponent<TMP_Text>() : null;
+            _chainText = panel.Find("Chain") != null ? panel.Find("Chain").GetComponent<TMP_Text>() : null;
+            _restartButton = panel.Find("Restart") != null ? panel.Find("Restart").GetComponent<Button>() : null;
+            if (_restartButton != null)
+            {
+                _restartButton.onClick.RemoveListener(Restart);
+                _restartButton.onClick.AddListener(Restart);
+                StyleButton(_restartButton);
+            }
+        }
+
+        private static void StyleButton(Button button)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.transition = Selectable.Transition.ColorTint;
+            var colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = UiTheme.Amber;
+            colors.pressedColor = Color.Lerp(UiTheme.Amber, Color.white, 0.35f);
+            colors.selectedColor = UiTheme.Amber;
+            button.colors = colors;
         }
 
         private void Start()
@@ -101,6 +144,8 @@ namespace RuneAshes.UI
             }
 
             _showing = true;
+
+            UiTheme.EnsureEventSystem();
 
             if (GameTime.Current != null)
             {

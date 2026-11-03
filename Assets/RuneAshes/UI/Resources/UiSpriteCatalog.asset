@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: UiSpriteCatalog
   m_EditorClassIdentifier: RuneAshes.UI::RuneAshes.UI.UiSpriteCatalog
   _panelMain: {fileID: 21300000, guid: e0f600d338999334eb02462666218123, type: 2}
-  _chainPanel: {fileID: 21300000, guid: 143d2da1366d52547b0b79124a185ab6, type: 2}
+  _chainPanel: {fileID: 21300000, guid: ea42fa9e1984ed34ba8938b32016311f, type: 2}
   _cardFrameCommon: {fileID: 21300000, guid: ef33fa49e1c4949c8b661308316c02af, type: 3}
   _healthBarPrefab: {fileID: 2914059203565708223, guid: 2dad26eb113a65140911e59df9995538, type: 3}
   _expBarPrefab: {fileID: 6446195785215144721, guid: 9efeb707270a3d24088a85edc794c2d3, type: 3}
@@ -23,9 +23,13 @@ MonoBehaviour:
   _cardIconSlot: {fileID: 21300000, guid: f0124a4afde550d43bb00849d5174ffd, type: 2}
   _buttonPrimary: {fileID: 21300000, guid: a409e2578093c604f810d9609108c864, type: 2}
   _buttonSecondary: {fileID: 21300000, guid: b14f7a3ebb7a1df40a0e1b7fc630bd3c, type: 2}
-  _chainSlotTrigger: {fileID: 21300000, guid: 8ca397e7e05fd2146a773abd6ffd446c, type: 2}
-  _chainSlotEffect: {fileID: 21300000, guid: 3329b2be5e3a2af41a2fae1cb40acb08, type: 2}
-  _chainSlotModifier: {fileID: 21300000, guid: e0cfbb2b3b2e8ef45a44950236693f46, type: 2}
+  _chainSlotTrigger: {fileID: 21300000, guid: c47b019e833371c48b6a168ac5567feb, type: 2}
+  _chainSlotEffect: {fileID: 21300000, guid: 55e92bd4a6409b744bbf0f2ef8ff8813, type: 2}
+  _chainSlotModifier: {fileID: 21300000, guid: d808483f765dc5e43bc2ee297f2ddafc, type: 2}
+  _chainEnergyBar: {fileID: 21300000, guid: 4642c8c6aa95dcd419c3eb18efebf498, type: 2}
+  _chainEnergyFullSlot: {fileID: 21300000, guid: 3eafc4b11c1839e428f2400f1ac00134, type: 2}
+  _chainPreview: {fileID: 21300000, guid: 8b7a99fee0d6ad241949e0c9e399ca94, type: 2}
+  _chainConnector: {fileID: 21300000, guid: cddb11e64ad49454c89b005a08bbbf6d, type: 2}
   _hudSlotCircle: {fileID: 21300000, guid: 14ab89e285bc5114793e8a8108c608b0, type: 2}
   _hudSlotSquare: {fileID: 21300000, guid: 49190df2d85ba0948b504287e48838ed, type: 2}
   _runeIcons:

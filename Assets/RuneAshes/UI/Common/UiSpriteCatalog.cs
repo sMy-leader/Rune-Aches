@@ -32,6 +32,10 @@ namespace RuneAshes.UI
         [SerializeField] private Sprite _chainSlotTrigger;
         [SerializeField] private Sprite _chainSlotEffect;
         [SerializeField] private Sprite _chainSlotModifier;
+        [SerializeField] private Sprite _chainEnergyBar;
+        [SerializeField] private Sprite _chainEnergyFullSlot;
+        [SerializeField] private Sprite _chainPreview;
+        [SerializeField] private Sprite _chainConnector;
         [SerializeField] private Sprite _hudSlotCircle;
         [SerializeField] private Sprite _hudSlotSquare;
         [SerializeField] private RuneIconEntry[] _runeIcons = Array.Empty<RuneIconEntry>();
@@ -50,6 +54,10 @@ namespace RuneAshes.UI
         public Sprite ChainSlotTrigger { get { return _chainSlotTrigger; } }
         public Sprite ChainSlotEffect { get { return _chainSlotEffect; } }
         public Sprite ChainSlotModifier { get { return _chainSlotModifier; } }
+        public Sprite ChainEnergyBar { get { return _chainEnergyBar; } }
+        public Sprite ChainEnergyFullSlot { get { return _chainEnergyFullSlot; } }
+        public Sprite ChainPreview { get { return _chainPreview; } }
+        public Sprite ChainConnector { get { return _chainConnector; } }
         public Sprite HudSlotCircle { get { return _hudSlotCircle; } }
         public Sprite HudSlotSquare { get { return _hudSlotSquare; } }
 
