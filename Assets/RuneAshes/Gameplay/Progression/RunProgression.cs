@@ -188,7 +188,7 @@ namespace RuneAshes.Gameplay
                 return null;
             }
 
-            return new ChainCompiler(_runes).Compile(BuildBlueprint());
+            return new ChainCompiler(_runes).Compile(BuildBlueprint());//解析当前链，进行合法性检查
         }
 
         /// <summary>HUD 用的一行摘要。</summary>

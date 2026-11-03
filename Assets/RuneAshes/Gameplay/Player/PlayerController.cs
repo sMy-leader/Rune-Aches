@@ -169,7 +169,7 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
-            var ray = _camera.ScreenPointToRay(_input.Aim);
+            var ray = _camera.ScreenPointToRay(_input.Aim);//屏幕到鼠标射线中心
             var plane = new Plane(Vector3.up, new Vector3(0f, _groundPlaneHeight, 0f));
             float enter;
             if (!plane.Raycast(ray, out enter))

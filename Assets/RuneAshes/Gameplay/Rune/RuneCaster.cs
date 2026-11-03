@@ -140,6 +140,7 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
+            //确认合法后进入效果和修饰器的构建阶段->传入此时的链的效果和修饰器->在工厂中做判断->返回对应的效果和修饰器
             _effect = new RuneEffectFactory().Create(_chain.Effect);
             _modifiers = new RuneModifierFactory().Build(_chain.Modifiers);
             _procBudget = new ProcBudget(RuneRules.ProcBudgetPerTenthSecond, 0.1f);

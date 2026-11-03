@@ -61,7 +61,7 @@ namespace RuneAshes.Gameplay
             }
             else
             {
-                energy += trigger.EnergyCost;
+                energy += trigger.EnergyCost;//确认合法->算能量消耗
             }
 
             if (string.IsNullOrWhiteSpace(blueprint.EffectId))
@@ -79,7 +79,7 @@ namespace RuneAshes.Gameplay
             }
             else
             {
-                energy += effect.EnergyCost;
+                energy += effect.EnergyCost;//确认合法->算能量消耗
             }
 
             // 修饰逐个校验并去重。遇到坏修饰只跳过它、继续检查后面的，

@@ -57,6 +57,7 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
+            //订阅事件源的事件，事件源触发时会回调到本类的对应方法
             _world.Hit += OnHit;
             _world.Kill += OnKill;
             _world.DashCompleted += OnDashCompleted;
@@ -101,6 +102,7 @@ namespace RuneAshes.Gameplay
             // 用减法会连续 tick 十几帧，一次把满血目标打空。
             _auraTimer = 0f;
 
+            //光环的逻辑->调用 UnityRuneWorld 的 DamageArea 方法，传入 AreaDamageSpec 结构体，指定光环中心、半径、伤害值、伤害类型和元数据
             _world.DamageArea(new AreaDamageSpec
             {
                 Center = transform.position,
@@ -131,7 +133,7 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
-            _caster.CastFromEvent(AimDirection, damage.Depth + 1);
+            _caster.CastFromEvent(AimDirection, damage.Depth + 1);//确定触发器后调用 RuneCaster 的 CastFromEvent 方法，传入施法方向和深度
         }
 
         // ── T3 命中传导 ──────────────────────────────────────────────────────
@@ -164,7 +166,7 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
-            _caster.CastFromEvent(AimDirection, damage.Depth + 1);
+            _caster.CastFromEvent(AimDirection, damage.Depth + 1);//确定触发器后调用 RuneCaster 的 CastFromEvent 方法，传入施法方向和深度
         }
 
         // ── T4 冲刺余波 ──────────────────────────────────────────────────────
@@ -176,7 +178,7 @@ namespace RuneAshes.Gameplay
             }
 
             var direction = _player != null ? _player.LastDashDirection : transform.forward;
-            _caster.CastFromEvent(direction, 1);//向前的余波攻击（以玩家为线）
+            _caster.CastFromEvent(direction, 1);////确定触发器后调用 RuneCaster 的 CastFromEvent 方法，传入施法方向和深度
         }
 
         // ── T5 受伤反击 ──────────────────────────────────────────────────────

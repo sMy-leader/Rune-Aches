@@ -23,6 +23,7 @@ namespace RuneAshes.Gameplay
                 throw new ArgumentNullException("effect");
             }
 
+            //根据 rune.csv 的 Id 字段注册原语
             switch (effect.Id)
             {
                 case "E1":

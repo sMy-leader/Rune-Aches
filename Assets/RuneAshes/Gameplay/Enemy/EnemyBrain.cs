@@ -180,7 +180,7 @@ namespace RuneAshes.Gameplay
                     {
                         _attackStateStarted = true;
                     }
-
+                    //根据三段Attack的不同时间做归一化->确保播到劈下瞬间触发hit
                     if (_attackStateStarted && !_didHit && inAttack &&
                         normalized >= _animator.CurrentAttackImpactNormalized())
                     {

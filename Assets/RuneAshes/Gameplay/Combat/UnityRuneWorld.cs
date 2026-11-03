@@ -202,7 +202,7 @@ namespace RuneAshes.Gameplay
 
                 _uniqueHits.Add(collider);
                 var damageEvent = new DamageEvent(meta, damage, type);
-                damageable.ApplyDamage(damageEvent);
+                damageable.ApplyDamage(damageEvent);//将事件传入->造成一次伤害
                 if (type != DamageType.Dot)
                 {
                     RaiseHit(damageEvent, damageable);

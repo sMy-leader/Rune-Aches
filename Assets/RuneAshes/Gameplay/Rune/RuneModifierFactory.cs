@@ -33,6 +33,8 @@ namespace RuneAshes.Gameplay
                     continue;
                 }
 
+                //根据符文 ID 解析参数，未注册的 ID 会被静默忽略（switch 没有 default 报错）
+                //获取数据后赋值给 ModifierSet 的字段，供弹丸/地雷/环绕球消费
                 switch (modifier.Id)
                 {
                     case "M1":
