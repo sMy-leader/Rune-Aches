@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9df411449c3149d42b8424a7050ed4af
+guid: 68b56399b539dfa4ab1378f5182f5a2e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -10120214502688718
-    second: UI_Chain_Panel_0
+      213: 7345161207356792830
+    second: UI_Chain_Slot_Effect_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -42,13 +42,13 @@ TextureImporter:
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 1
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 0
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -57,7 +57,7 @@ TextureImporter:
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
-  textureType: 8
+  textureType: 0
   textureShape: 1
   singleChannelComponent: 0
   flipbookRows: 1
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: UI_Chain_Panel_0
+      name: UI_Chain_Slot_Effect_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1344
-        height: 768
+        width: 512
+        height: 752
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2383481f7bb0cdff0800000000000000
-      internalID: -10120214502688718
+      spriteID: eff1b76a3314fe560800000000000000
+      internalID: 7345161207356792830
       vertices: []
       indices: 
       edges: []
