@@ -21,6 +21,15 @@ namespace RuneAshes.Data
         Modifier
     }
 
+    /// <summary>卡牌/掉落表现层级；只影响 UI 视觉，不影响装配规则。</summary>
+    public enum RuneRarity
+    {
+        Common,
+        Rare,
+        Intensify,
+        Full
+    }
+
     /// <summary>
     /// 单个符文的运行时定义。数据来自 rune.csv，由 RuneCsvCodeGen 生成 RuneTable.g.cs。
     /// </summary>
@@ -33,6 +42,9 @@ namespace RuneAshes.Data
         public string Name { get; private set; }
 
         public RuneCategory Category { get; private set; }
+
+        /// <summary>表现层级；从 params 的 rarity 读取，默认 Common。</summary>
+        public RuneRarity Rarity { get; private set; }
 
         /// <summary>装配链时的能量开销，由 ChainCompiler 累加后与上限比较。</summary>
         public int EnergyCost { get; private set; }
@@ -108,11 +120,20 @@ namespace RuneAshes.Data
                 parameters[paramKeys[i]] = paramValues[i];
             }
 
+            RuneRarity rarity;
+            string rarityText;
+            if (!parameters.TryGetValue("rarity", out rarityText) ||
+                !Enum.TryParse(rarityText, true, out rarity))
+            {
+                rarity = RuneRarity.Common;
+            }
+
             return new RuneDef
             {
                 Id = id,
                 Name = name ?? string.Empty,
                 Category = category,
+                Rarity = rarity,
                 EnergyCost = energyCost,
                 BaseValue = baseValue,
                 MaxLevel = maxLevel,
