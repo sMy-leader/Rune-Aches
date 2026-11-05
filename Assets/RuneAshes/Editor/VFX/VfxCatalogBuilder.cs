@@ -50,7 +50,7 @@ namespace RuneAshes.Editor
             Set(so, "_projectileSpread", Root + "Projectile/VFX_Projectile_Spread_Cyan_01_Burn.prefab");
             // 缺 Beam/Orbit/Mine 弹道：用 Direct 复用。
             Set(so, "_projectileBeam", Root + "Projectile/VFX_Projectile_Direct_Cyan_01.prefab");
-            Set(so, "_projectileOrbit", Root + "Projectile/VFX_Projectile_Direct_Cyan_01.prefab");
+            Set(so, "_projectileOrbit", Root + "Player/VFX_Projectile_Orbit_Cyan_01.prefab");
             Set(so, "_projectileMine", Root + "Projectile/VFX_Projectile_Direct_Cyan_01.prefab");
             Set(so, "_projectileHoming", Root + "Projectile/VFX_Projectile_Homing_Gold_01.prefab");
             Set(so, "_projectileEnemyMagenta", Root + "Projectile/VFX_Projectile_Enemy_Magenta_01.prefab");

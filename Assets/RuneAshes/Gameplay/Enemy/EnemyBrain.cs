@@ -192,6 +192,17 @@ namespace RuneAshes.Gameplay
             toTarget.y = 0f;
             var distance = toTarget.magnitude;
 
+            // 冻结期间完全停手；减速只影响 Move，不阻断转向/攻击判定。
+            if (_actor != null && _actor.IsFrozen)
+            {
+                if (_animator != null)
+                {
+                    _animator.SetLocomotion(0f);
+                }
+
+                return;
+            }
+
             switch (_state)
             {
                 case State.Idle:
@@ -366,7 +377,8 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
-            _controller.Move(direction * (_moveSpeed * dt));
+            var speed = _moveSpeed * (_actor != null ? _actor.SpeedMultiplier : 1f);
+            _controller.Move(direction * (speed * dt));
         }
 
         private void Face(Vector3 direction, float dt)

@@ -29,7 +29,7 @@ MonoBehaviour:
   _projectileDirect: {fileID: 8633848661477817241, guid: 6c90ca55f3d560248890462857a410bc, type: 3}
   _projectileSpread: {fileID: 4341217538933471066, guid: 59ea399b9ed956a428e51cd7091ef922, type: 3}
   _projectileBeam: {fileID: 8633848661477817241, guid: 6c90ca55f3d560248890462857a410bc, type: 3}
-  _projectileOrbit: {fileID: 8633848661477817241, guid: 6c90ca55f3d560248890462857a410bc, type: 3}
+  _projectileOrbit: {fileID: 3412048727047264113, guid: 411d13d1a3580714f82819a336531f31, type: 3}
   _projectileMine: {fileID: 8633848661477817241, guid: 6c90ca55f3d560248890462857a410bc, type: 3}
   _projectileHoming: {fileID: 76707558408098668, guid: a94bbdcea315d39498ffbcfcdf865519, type: 3}
   _projectileEnemyMagenta: {fileID: 3696961455410369661, guid: 3a7ddbd4ae9a0d04995752126cce6138, type: 3}

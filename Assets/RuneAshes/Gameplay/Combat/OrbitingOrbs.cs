@@ -24,6 +24,7 @@ namespace RuneAshes.Gameplay
         private float _angle;
         private readonly Collider[] _hits = new Collider[16];
         private readonly Dictionary<int, float> _lastHitTime = new Dictionary<int, float>();
+        private GameObject[] _visuals;
 
         /// <summary>施法者本体，命中时跳过，避免环绕球打自己。</summary>
         private IDamageable _owner;
@@ -42,6 +43,18 @@ namespace RuneAshes.Gameplay
             {
                 transform.SetParent(follow, false);
                 transform.localPosition = Vector3.zero;
+            }
+
+            var count = Mathf.Max(1, _spec.Count);
+            _visuals = new GameObject[count];
+            for (var i = 0; i < count; i++)
+            {
+                _visuals[i] = VfxService.PlayAttached(
+                    VfxId.ProjectileOrbit,
+                    transform,
+                    Vector3.zero,
+                    Quaternion.identity,
+                    _spec.Duration);
             }
         }
 
@@ -62,6 +75,11 @@ namespace RuneAshes.Gameplay
             {
                 var offset = Quaternion.Euler(0f, _angle + i * (360f / count), 0f) * Vector3.forward;
                 var point = transform.position + offset * _spec.Radius;
+                if (_visuals != null && i < _visuals.Length && _visuals[i] != null)
+                {
+                    _visuals[i].transform.localPosition = transform.InverseTransformPoint(point);
+                }
+
                 HitAt(point);
             }
         }

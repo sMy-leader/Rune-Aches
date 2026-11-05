@@ -38,6 +38,15 @@ namespace RuneAshes.Gameplay
         /// <summary>M4 燃烧：持续时间（秒）。</summary>
         public float BurnDuration;
 
+        /// <summary>M5 冰冻：减速比例（0~1）。</summary>
+        public float SlowPercent;
+
+        /// <summary>M5 冰冻：减速持续时间（秒）。</summary>
+        public float SlowDuration;
+
+        /// <summary>M5 冰冻：叠到该层数后短暂冻结。</summary>
+        public int SlowStacks;
+
         /// <summary>M6 爆炸：命中后的范围伤害半径；0 = 不爆炸。</summary>
         public float ExplosionRadius;
 
@@ -53,7 +62,7 @@ namespace RuneAshes.Gameplay
             get
             {
                 return SplitCount > 0 || Bounces > 0 || Pierce > 0 || TurnRate > 0f ||
-                       BurnDps > 0f || ExplosionRadius > 0f;
+                       BurnDps > 0f || SlowPercent > 0f || ExplosionRadius > 0f;
             }
         }
     }

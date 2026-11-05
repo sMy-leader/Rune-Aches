@@ -205,6 +205,11 @@ namespace RuneAshes.Gameplay
                 debuff.ApplyBurn(_spec.Modifiers.BurnDps, _spec.Modifiers.BurnDuration, _spec.Meta);
             }
 
+            if (debuff != null && _spec.Modifiers.SlowPercent > 0f)
+            {
+                debuff.ApplySlow(_spec.Modifiers.SlowPercent, _spec.Modifiers.SlowDuration);
+            }
+
             // 燃烧与爆炸都用 _spec.Meta：归属仍是"这次施法"，
             // 所以由它们产生的后续击杀/伤害可以被递归闸门正确追踪。
             if (_spec.Modifiers.ExplosionRadius > 0f && Owner != null)
@@ -225,6 +230,11 @@ namespace RuneAshes.Gameplay
             if (_spec.Modifiers.ExplosionRadius > 0f)
             {
                 return VfxId.HitExplosion;
+            }
+
+            if (_spec.Modifiers.SlowPercent > 0f)
+            {
+                return VfxId.HitFreeze;
             }
 
             return _spec.Modifiers.BurnDps > 0f ? VfxId.HitBurn : VfxId.HitPhysical;

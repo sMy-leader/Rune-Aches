@@ -80,6 +80,16 @@ namespace RuneAshes.Tests
         }
 
         [Test]
+        public void Freeze_Reads_Slow_Parameters()
+        {
+            var set = Build("M5");
+            Assert.AreEqual(0.4f, set.SlowPercent, 0.001f);
+            Assert.AreEqual(2f, set.SlowDuration, 0.001f);
+            Assert.AreEqual(3, set.SlowStacks);
+            Assert.IsTrue(set.HasAny);
+        }
+
+        [Test]
         public void Combined_Modifiers_Merge()
         {
             var set = Build("M1", "M4", "M6");

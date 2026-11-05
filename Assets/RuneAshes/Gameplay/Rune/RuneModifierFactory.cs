@@ -52,6 +52,11 @@ namespace RuneAshes.Gameplay
                         set.BurnDps = modifier.GetFloat("dps", 4f);
                         set.BurnDuration = modifier.GetFloat("duration", 3f);
                         break;
+                    case "M5":
+                        set.SlowPercent = modifier.GetFloat("slow", 0.4f);
+                        set.SlowDuration = modifier.GetFloat("duration", 2f);
+                        set.SlowStacks = modifier.GetInt("stacks", 3);
+                        break;
                     case "M6":
                         set.ExplosionRadius = modifier.GetFloat("radius", 2.5f);
                         set.ExplosionDamage = modifier.BaseValue;

@@ -23,6 +23,12 @@ namespace RuneAshes.Gameplay
         private float _burnTimeLeft;
         private CastMeta _burnMeta;
 
+        private const int MaxSlowStacks = 3;
+        private float _slowPercent;
+        private float _slowTimeLeft;
+        private int _slowStacks;
+        private float _freezeTimeLeft;
+
         /// <summary>每次受伤都会触发（含 DoT）。AI 用 DamageType 过滤，避免燃烧把敌人一直打进硬直。</summary>
         public event Action<EnemyActor, DamageEvent> Damaged;
 
@@ -107,17 +113,70 @@ namespace RuneAshes.Gameplay
 
         public void ApplySlow(float percent, float duration)
         {
-            // W3 的冰霜词缀接入时实现；当前没有减速敌人。
+            if (!IsAlive)
+            {
+                return;
+            }
+
+            _slowPercent = Mathf.Max(_slowPercent, Mathf.Clamp01(percent));
+            _slowTimeLeft = Mathf.Max(_slowTimeLeft, duration);
+            _slowStacks = Mathf.Min(MaxSlowStacks, _slowStacks + 1);
+
+            if (_slowStacks >= MaxSlowStacks)
+            {
+                _freezeTimeLeft = Mathf.Max(_freezeTimeLeft, 0.5f);
+                _slowStacks = 0;
+            }
+        }
+
+        /// <summary>1 = 正常速度；0 = 冻结。EnemyBrain 的 Move 直接乘这个值。</summary>
+        public float SpeedMultiplier
+        {
+            get
+            {
+                if (_freezeTimeLeft > 0f)
+                {
+                    return 0f;
+                }
+
+                return _slowTimeLeft > 0f ? 1f - _slowPercent : 1f;
+            }
+        }
+
+        public bool IsFrozen
+        {
+            get { return _freezeTimeLeft > 0f; }
         }
 
         private void Update()
         {
-            if (!IsAlive || _burnTimeLeft <= 0f)
+            if (!IsAlive)
             {
                 return;
             }
 
             var dt = Time.deltaTime;
+
+            if (_freezeTimeLeft > 0f)
+            {
+                _freezeTimeLeft = Mathf.Max(0f, _freezeTimeLeft - dt);
+            }
+
+            if (_slowTimeLeft > 0f)
+            {
+                _slowTimeLeft = Mathf.Max(0f, _slowTimeLeft - dt);
+                if (_slowTimeLeft <= 0f)
+                {
+                    _slowPercent = 0f;
+                    _slowStacks = 0;
+                }
+            }
+
+            if (_burnTimeLeft <= 0f)
+            {
+                return;
+            }
+
             _burnTimeLeft -= dt;
             ApplyDamage(new DamageEvent(_burnMeta, _burnDps * dt, DamageType.Dot));
         }
