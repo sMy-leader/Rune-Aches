@@ -47,6 +47,8 @@ namespace RuneAshes.Gameplay
             {
                 _world.Kill += OnKill;
             }
+
+            LeveledUp += OnLeveledUp;
         }
 
         private void OnDisable()
@@ -55,6 +57,13 @@ namespace RuneAshes.Gameplay
             {
                 _world.Kill -= OnKill;
             }
+
+            LeveledUp -= OnLeveledUp;
+        }
+
+        private void OnLeveledUp(int level)
+        {
+            VfxService.Play(VfxId.LevelUpRing, transform.position, Quaternion.identity);
         }
 
         private void OnKill(DamageEvent damage, IDamageable target)

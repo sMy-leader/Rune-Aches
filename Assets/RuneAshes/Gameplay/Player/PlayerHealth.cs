@@ -73,6 +73,8 @@ namespace RuneAshes.Gameplay
                 _health = 0f;
                 _dead = true;
 
+                VfxService.Play(VfxId.PlayerDeath, transform.position, Quaternion.identity);
+
                 if (Died != null)
                 {
                     Died();
@@ -100,6 +102,8 @@ namespace RuneAshes.Gameplay
             // DoT 不触发受击动画：否则燃烧每帧都会把角色打进受击状态。
             if (damage.Type != DamageType.Dot)
             {
+                VfxService.Play(VfxId.PlayerHit, transform.position + Vector3.up * 0.8f, Quaternion.identity);
+
                 // T5 受伤反击：只在非致死、非 DoT 的伤害上触发。
                 if (_world != null)
                 {

@@ -7,7 +7,10 @@
 //   将来换成 Flow Field / Job 时不用重写动画资产。
 // 【W3 扩展】远程/自爆怪复用同一个接口：改 _attackRange / _windup / 命中逻辑即可。
 // ─────────────────────────────────────────────────────────────────────────────
+using System;
 using System.Collections;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace RuneAshes.Gameplay
@@ -344,7 +347,10 @@ namespace RuneAshes.Gameplay
                     break;
             }
         }
-
+        /// <summary>
+        /// 状态机的统一进入点：重置计时器、攻击标记等。（初始重置）
+        /// </summary>
+        /// <param name="next"></param>
         private void Enter(State next)
         {
             _state = next;
@@ -417,41 +423,58 @@ namespace RuneAshes.Gameplay
             }
 
             _exploding = true;
+            VfxService.Play(VfxId.BomberExplode, transform.position, Quaternion.identity);
+
             if (_animator != null)
             {
                 _animator.PlayExplode();
             }
 
-            StartCoroutine(ExplodeRoutine());
+            // 绑定到组件销毁，对象被 Destroy 时自动取消，避免访问已销毁的成员。
+            ExplodeAsync(this.GetCancellationTokenOnDestroy()).Forget();
         }
 
-        private IEnumerator ExplodeRoutine()
+        private async UniTaskVoid ExplodeAsync(CancellationToken token)
         {
-            // 先让 explode 动画进入，再把伤害结算到玩家。
-            yield return new WaitForSeconds(_explosionDamageDelay);
-
-            var meta = new CastMeta { ChainId = 0, CastId = 0, Depth = 0, Seed = 0 };
-            if (_target != null && _target.IsAlive)
+            try
             {
-                var distance = Vector3.Distance(transform.position, _target.Position);
-                if (distance <= _explosionRadius)
+                // 先让 explode 动画进入，再把伤害结算到玩家。
+                // WaitForSeconds 用的是 scaled 时间，UniTask.Delay 默认同样是 scaled，行为一致。
+                if (_explosionDamageDelay > 0f)
                 {
-                    _target.ApplyDamage(new DamageEvent(meta, _explosionDamage, DamageType.Explosion));
+                    await UniTask.Delay(TimeSpan.FromSeconds(_explosionDamageDelay), cancellationToken: token);
+                }
+
+                var meta = new CastMeta { ChainId = 0, CastId = 0, Depth = 0, Seed = 0 };
+                if (_target != null && _target.IsAlive)
+                {
+                    var distance = Vector3.Distance(transform.position, _target.Position);
+                    if (distance <= _explosionRadius)
+                    {
+                        _target.ApplyDamage(new DamageEvent(meta, _explosionDamage, DamageType.Explosion));
+                    }
+                }
+
+                // 爆炸动画播到后段再让本体死亡，避免 death 立刻覆盖 explode。
+                var remaining = Mathf.Max(0f, _explosionDeathDelay - _explosionDamageDelay);
+                if (remaining > 0f)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(remaining), cancellationToken: token);
+                }
+
+                transform.localScale = Vector3.one;
+                if (_actor != null)
+                {
+                    _actor.ApplyDamage(new DamageEvent(meta, _actor.MaxHealth + 1f, DamageType.Explosion));
+                }
+                else
+                {
+                    Destroy(gameObject);
                 }
             }
-
-            // 爆炸动画播到后段再让本体死亡，避免 death 立刻覆盖 explode。
-            var remaining = Mathf.Max(0f, _explosionDeathDelay - _explosionDamageDelay);
-            yield return new WaitForSeconds(remaining);
-
-            transform.localScale = Vector3.one;
-            if (_actor != null)
+            catch (OperationCanceledException)
             {
-                _actor.ApplyDamage(new DamageEvent(meta, _actor.MaxHealth + 1f, DamageType.Explosion));
-            }
-            else
-            {
-                Destroy(gameObject);
+                // 对象已销毁，忽略即可
             }
         }
 

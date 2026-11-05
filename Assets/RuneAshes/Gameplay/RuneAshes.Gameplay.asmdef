@@ -4,7 +4,8 @@
     "references": [
         "RuneAshes.Data",
         "RuneAshes.Framework",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

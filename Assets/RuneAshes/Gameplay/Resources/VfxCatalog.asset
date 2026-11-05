@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b35b1353aa3128641bd2482f140980a0, type: 3}
+  m_Name: VfxCatalog
+  m_EditorClassIdentifier: RuneAshes.Gameplay::RuneAshes.Gameplay.VfxCatalog
+  _hitPhysical: {fileID: 9044439275996040111, guid: b632f38bf3bd1594aac6bcca0bb89c4b, type: 3}
+  _hitBurn: {fileID: 1368610524994905579, guid: 18987640193eb474e9195cad06e7bafd, type: 3}
+  _hitFreeze: {fileID: 2026885259482448696, guid: e58abf827da62f74a94a0d193bc230f2, type: 3}
+  _hitExplosion: {fileID: 1542214644430469641, guid: 03795fcf5f36625459f679df1325c28d, type: 3}
+  _hitShield: {fileID: 9198956308982676477, guid: 27f939b127eeaf342b4d7c3ecb0f936d, type: 3}
+  _hitShieldBreak: {fileID: 3652414234894895641, guid: a23395d1f176aea4fa3025bd497165c5, type: 3}
+  _playerHit: {fileID: 1037365766681950099, guid: ebf46ef431d9d49429b41051a71ee2b3, type: 3}
+  _playerDeath: {fileID: 1037365766681950099, guid: ebf46ef431d9d49429b41051a71ee2b3, type: 3}
+  _muzzleDirect: {fileID: 8796934073005989200, guid: de8282fcfcd8a324c91cb4742042b41f, type: 3}
+  _muzzleSpread: {fileID: 8796934073005989200, guid: de8282fcfcd8a324c91cb4742042b41f, type: 3}
+  _muzzleOrbit: {fileID: 8796934073005989200, guid: de8282fcfcd8a324c91cb4742042b41f, type: 3}
+  _muzzleMine: {fileID: 8796934073005989200, guid: de8282fcfcd8a324c91cb4742042b41f, type: 3}
+  _muzzleDashSlash: {fileID: 180815315961438039, guid: c128eaf6bd7db9549b78d10740be2d45, type: 3}
+  _muzzleBeam: {fileID: 7157954244815943561, guid: b6acaf4df08a9444cb911014a3e076f0, type: 3}
+  _projectileDirect: {fileID: 8633848661477817241, guid: 6c90ca55f3d560248890462857a410bc, type: 3}
+  _projectileSpread: {fileID: 4341217538933471066, guid: 59ea399b9ed956a428e51cd7091ef922, type: 3}
+  _projectileBeam: {fileID: 8633848661477817241, guid: 6c90ca55f3d560248890462857a410bc, type: 3}
+  _projectileOrbit: {fileID: 8633848661477817241, guid: 6c90ca55f3d560248890462857a410bc, type: 3}
+  _projectileMine: {fileID: 8633848661477817241, guid: 6c90ca55f3d560248890462857a410bc, type: 3}
+  _projectileHoming: {fileID: 76707558408098668, guid: a94bbdcea315d39498ffbcfcdf865519, type: 3}
+  _projectileEnemyMagenta: {fileID: 3696961455410369661, guid: 3a7ddbd4ae9a0d04995752126cce6138, type: 3}
+  _projectileEnemyOrange: {fileID: 7060748179987131170, guid: 37ce891c61cd0b1488f5e34ee33c8c96, type: 3}
+  _explosionSmall: {fileID: 621804800320776287, guid: 2e4f90aab001a8d47a9ea0aa18ab9ddd, type: 3}
+  _explosionM6: {fileID: 2531251357778330862, guid: 7a7f1c5c82e468f44867597561c1fc1b, type: 3}
+  _bomberExplode: {fileID: 5424958111797699244, guid: f33fb45f2cb8eba4880508bcd4e9e25b, type: 3}
+  _shockwave: {fileID: 6637323516494468537, guid: a31178f90750e8a44a9ff9d09565acb0, type: 3}
+  _damageAreaRing: {fileID: 6637323516494468537, guid: a31178f90750e8a44a9ff9d09565acb0, type: 3}
+  _dashTrail: {fileID: 295821143456275948, guid: 099329c04301db6479547baa7ff41867, type: 3}
+  _levelUpRing: {fileID: 8394313812161080912, guid: 562595df720998e43bbe76945d76538b, type: 3}
+  _levelUpColumn: {fileID: 6295428024138307411, guid: 6e60c422b27674840b322ec1ed521620, type: 3}

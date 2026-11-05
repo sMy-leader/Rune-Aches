@@ -74,6 +74,9 @@ desktop.ini
 /Assets/Art/Characters/Player/
 /Assets/Art/Characters/Player.meta
 
+# ---- 本地 VFX Pack（约 138MB，不入 Git） ----
+/Assets/Art/VFX/
+
 # ---- Reasonix 会话附件（本地临时） ----
 .reasonix/
 

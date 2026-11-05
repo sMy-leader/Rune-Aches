@@ -27,6 +27,7 @@ namespace RuneAshes.Gameplay
 
         private int _pierceLeft;
         private int _bouncesLeft;
+        private GameObject _projectileVfx;
 
         /// <summary>复用缓冲区：OverlapSphereNonAlloc 最多返回 8 个，超出部分本帧忽略。</summary>
         private readonly Collider[] _hits = new Collider[8];
@@ -52,6 +53,21 @@ namespace RuneAshes.Gameplay
             _hitIds.Clear();
             transform.position = spec.Origin;
             transform.forward = _direction;
+            VfxService.Play(VfxId.MuzzleDirect, spec.Origin, Quaternion.LookRotation(_direction), 0.22f);
+
+            if (_projectileVfx != null)
+            {
+                Object.Destroy(_projectileVfx);
+            }
+
+            // 弹道拖尾跟随弹丸，命中/回收时由 Deactivate 销毁。
+            _projectileVfx = VfxService.PlayAttached(
+                VfxId.ProjectileDirect,
+                transform,
+                Vector3.zero,
+                Quaternion.identity,
+                Mathf.Max(0.2f, spec.Lifetime));
+
             gameObject.SetActive(true);
         }
 
@@ -175,6 +191,8 @@ namespace RuneAshes.Gameplay
             var damageEvent = new DamageEvent(_spec.Meta, _spec.Damage * _damageScale, DamageType.Direct);
             damageable.ApplyDamage(damageEvent);
 
+            VfxService.Play(SelectHitVfx(), transform.position, Quaternion.identity);
+
             // 命中事件用于 T3 命中传导；DoT 不算命中（语义规范 DotCountsAsHit=false）。
             if (Owner != null)
             {
@@ -200,6 +218,16 @@ namespace RuneAshes.Gameplay
                     Meta = _spec.Meta
                 });
             }
+        }
+
+        private VfxId SelectHitVfx()
+        {
+            if (_spec.Modifiers.ExplosionRadius > 0f)
+            {
+                return VfxId.HitExplosion;
+            }
+
+            return _spec.Modifiers.BurnDps > 0f ? VfxId.HitBurn : VfxId.HitPhysical;
         }
 
         /// <summary>
@@ -286,6 +314,12 @@ namespace RuneAshes.Gameplay
         private void Deactivate()
         {
             _active = false;
+            if (_projectileVfx != null)
+            {
+                Object.Destroy(_projectileVfx);
+                _projectileVfx = null;
+            }
+
             if (Owner != null)
             {
                 Owner.ReleaseProjectile(this);
