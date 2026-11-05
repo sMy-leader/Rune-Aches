@@ -1,8 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // 【职责】游戏内 VFX 的稳定入口：代码只认 VfxId，不认具体 prefab 路径。
-// 当前先保证正确性：每次 Play 直接实例化，按生命周期自动销毁。
-// W5 性能阶段再接对象池；不要为了省一次 Instantiate 把反馈弄丢。
+// 世界空间的一次性特效走池；弹丸/环绕球这类挂接特效走直接实例化，
+// 避免池对象被父对象 Destroy 后污染池。
 // ─────────────────────────────────────────────────────────────────────────────
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace RuneAshes.Gameplay
@@ -11,10 +12,14 @@ namespace RuneAshes.Gameplay
     {
         private static VfxCatalog _catalog;
         private static Transform _root;
+        private static VfxPoolRuntime _runtime;
         private static bool _loaded;
         private static int _frame = -1;
         private static int _spawnedThisFrame;
         private const int MaxSpawnsPerFrame = 16;
+
+        private static readonly Dictionary<GameObject, Stack<VfxPooledInstance>> Pools =
+            new Dictionary<GameObject, Stack<VfxPooledInstance>>();
 
         public static void Play(VfxId id, Vector3 position)
         {
@@ -45,15 +50,36 @@ namespace RuneAshes.Gameplay
             }
 
             var prefab = GetPrefab(id);
-            if (prefab != null)
+            if (prefab == null)
             {
-                Spawn(prefab, parent, position, rotation, maxLifetime, false);
+                return;
             }
+
+            EnsureRoot();
+
+            // 有父对象时不要池化：父对象可能被 Destroy，池会拿到失效实例。
+            if (parent != null)
+            {
+                SpawnDirect(prefab, parent, position, rotation, maxLifetime, false);
+                return;
+            }
+
+            var instance = GetPooled(prefab);
+            if (instance == null)
+            {
+                return;
+            }
+
+            instance.transform.SetParent(_root, false);
+            instance.transform.position = position;
+            instance.transform.rotation = rotation;
+            _runtime.Register(instance);
+            instance.Begin(maxLifetime);
         }
 
         /// <summary>
         /// 给弹丸/持续物体使用的挂接版本：作为 parent 的子对象，随父物体移动。
-        /// 返回实例，调用方可在命中时提前 Destroy。
+        /// 直接实例化并返回；调用方在命中时 Destroy。
         /// </summary>
         public static GameObject PlayAttached(VfxId id, Transform parent, Vector3 localPosition,
             Quaternion localRotation, float maxLifetime)
@@ -61,17 +87,75 @@ namespace RuneAshes.Gameplay
             var prefab = GetPrefab(id);
             return prefab == null
                 ? null
-                : Spawn(prefab, parent, localPosition, localRotation, maxLifetime, true);
+                : SpawnDirect(prefab, parent, localPosition, localRotation, maxLifetime, true);
         }
 
-        private static GameObject Spawn(GameObject prefab, Transform parent, Vector3 position,
-            Quaternion rotation, float maxLifetime, bool local)
+        private static void EnsureRoot()
         {
-            if (_root == null)
+            if (_root != null)
             {
-                _root = new GameObject("[VFX]").transform;
+                return;
             }
 
+            var root = new GameObject("[VFX]");
+            _root = root.transform;
+            _runtime = root.AddComponent<VfxPoolRuntime>();
+        }
+
+        private static VfxPooledInstance GetPooled(GameObject prefab)
+        {
+            Stack<VfxPooledInstance> pool;
+            if (!Pools.TryGetValue(prefab, out pool))
+            {
+                pool = new Stack<VfxPooledInstance>();
+                Pools.Add(prefab, pool);
+            }
+
+            while (pool.Count > 0)
+            {
+                var pooled = pool.Pop();
+                if (pooled != null)
+                {
+                    return pooled;
+                }
+            }
+
+            var go = Object.Instantiate(prefab, _root);
+            var instance = go.GetComponent<VfxPooledInstance>();
+            if (instance == null)
+            {
+                instance = go.AddComponent<VfxPooledInstance>();
+            }
+
+            instance.Prefab = prefab;
+            return instance;
+        }
+
+        internal static void Return(VfxPooledInstance instance)
+        {
+            if (instance == null || instance.Prefab == null)
+            {
+                return;
+            }
+
+            instance.StopAndHide();
+            instance.transform.SetParent(_root, false);
+            instance.transform.localPosition = Vector3.zero;
+            instance.gameObject.SetActive(false);
+
+            Stack<VfxPooledInstance> pool;
+            if (!Pools.TryGetValue(instance.Prefab, out pool))
+            {
+                pool = new Stack<VfxPooledInstance>();
+                Pools.Add(instance.Prefab, pool);
+            }
+
+            pool.Push(instance);
+        }
+
+        private static GameObject SpawnDirect(GameObject prefab, Transform parent, Vector3 position,
+            Quaternion rotation, float maxLifetime, bool local)
+        {
             var go = Object.Instantiate(prefab, parent != null ? parent : _root);
             go.name = prefab.name + " (VFX)";
             if (local)
@@ -86,7 +170,13 @@ namespace RuneAshes.Gameplay
             }
 
             go.SetActive(true);
+            var duration = ConfigureParticles(go);
+            Object.Destroy(go, maxLifetime > 0f ? maxLifetime : Mathf.Min(duration, 3f));
+            return go;
+        }
 
+        internal static float ConfigureParticles(GameObject go)
+        {
             var systems = go.GetComponentsInChildren<ParticleSystem>(true);
             var duration = 0.2f;
             for (var i = 0; i < systems.Length; i++)
@@ -98,7 +188,6 @@ namespace RuneAshes.Gameplay
                 }
 
                 var main = system.main;
-                // One-shot 反馈统一关闭 loop；真实循环特效应走独立 API。
                 main.loop = false;
                 main.stopAction = ParticleSystemStopAction.None;
                 system.Clear(true);
@@ -111,8 +200,7 @@ namespace RuneAshes.Gameplay
                 }
             }
 
-            Object.Destroy(go, maxLifetime > 0f ? maxLifetime : Mathf.Min(duration, 3f));
-            return go;
+            return duration;
         }
 
         private static GameObject GetPrefab(VfxId id)
@@ -147,6 +235,98 @@ namespace RuneAshes.Gameplay
             }
 
             return _catalog;
+        }
+    }
+
+    /// <summary>池对象：只保存自身状态，由 VfxPoolRuntime 统一 Tick。</summary>
+    public sealed class VfxPooledInstance : MonoBehaviour
+    {
+        internal GameObject Prefab;
+
+        private ParticleSystem[] _systems;
+        private float _age;
+        private float _duration;
+        private bool _active;
+
+        internal void Begin(float maxLifetime)
+        {
+            if (_systems == null)
+            {
+                _systems = GetComponentsInChildren<ParticleSystem>(true);
+            }
+
+            gameObject.SetActive(true);
+            _duration = VfxService.ConfigureParticles(gameObject);
+            _duration = maxLifetime > 0f ? maxLifetime : Mathf.Min(_duration, 3f);
+            _age = 0f;
+            _active = true;
+        }
+
+        internal bool Tick(float dt)
+        {
+            if (!_active)
+            {
+                return false;
+            }
+
+            _age += dt;
+            if (_age < _duration)
+            {
+                return false;
+            }
+
+            _active = false;
+            return true;
+        }
+
+        internal void StopAndHide()
+        {
+            _active = false;
+            if (_systems == null)
+            {
+                return;
+            }
+
+            for (var i = 0; i < _systems.Length; i++)
+            {
+                if (_systems[i] != null)
+                {
+                    _systems[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                }
+            }
+        }
+    }
+
+    /// <summary>单一管理器负责所有池实例的倒计时，避免每个特效各自 Update。</summary>
+    public sealed class VfxPoolRuntime : MonoBehaviour
+    {
+        private readonly List<VfxPooledInstance> _active = new List<VfxPooledInstance>();
+
+        internal void Register(VfxPooledInstance instance)
+        {
+            if (!_active.Contains(instance))
+            {
+                _active.Add(instance);
+            }
+        }
+
+        private void Update()
+        {
+            for (var i = _active.Count - 1; i >= 0; i--)
+            {
+                var instance = _active[i];
+                if (instance == null)
+                {
+                    _active.RemoveAt(i);
+                    continue;
+                }
+
+                if (instance.Tick(Time.deltaTime))
+                {
+                    _active.RemoveAt(i);
+                    VfxService.Return(instance);
+                }
+            }
         }
     }
 }
