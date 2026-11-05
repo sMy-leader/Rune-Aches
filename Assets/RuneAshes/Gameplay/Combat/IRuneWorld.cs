@@ -23,6 +23,9 @@ namespace RuneAshes.Gameplay
         public float Radius;
         public CastMeta Meta;
         public ModifierSet Modifiers;
+
+        /// <summary>M1 分裂产生的子弹：抑制 Muzzle，避免一次分裂喷出多份枪口特效。</summary>
+        public bool IsSplit;
     }
 
     /// <summary>环绕球的生成参数（E3）：数量、半径、持续时间和转速。</summary>

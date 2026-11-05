@@ -12,6 +12,9 @@ namespace RuneAshes.Gameplay
         private static VfxCatalog _catalog;
         private static Transform _root;
         private static bool _loaded;
+        private static int _frame = -1;
+        private static int _spawnedThisFrame;
+        private const int MaxSpawnsPerFrame = 16;
 
         public static void Play(VfxId id, Vector3 position)
         {
@@ -36,6 +39,11 @@ namespace RuneAshes.Gameplay
         public static void Play(VfxId id, Vector3 position, Quaternion rotation, Transform parent,
             float maxLifetime)
         {
+            if (!ConsumeBudget())
+            {
+                return;
+            }
+
             var prefab = GetPrefab(id);
             if (prefab != null)
             {
@@ -111,6 +119,23 @@ namespace RuneAshes.Gameplay
         {
             var catalog = GetCatalog();
             return catalog != null ? catalog.Get(id) : null;
+        }
+
+        private static bool ConsumeBudget()
+        {
+            if (Time.frameCount != _frame)
+            {
+                _frame = Time.frameCount;
+                _spawnedThisFrame = 0;
+            }
+
+            if (_spawnedThisFrame >= MaxSpawnsPerFrame)
+            {
+                return false;
+            }
+
+            _spawnedThisFrame++;
+            return true;
         }
 
         private static VfxCatalog GetCatalog()

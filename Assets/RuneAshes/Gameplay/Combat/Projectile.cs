@@ -53,7 +53,10 @@ namespace RuneAshes.Gameplay
             _hitIds.Clear();
             transform.position = spec.Origin;
             transform.forward = _direction;
-            VfxService.Play(VfxId.MuzzleDirect, spec.Origin, Quaternion.LookRotation(_direction), 0.22f);
+            if (!spec.IsSplit)
+            {
+                VfxService.Play(VfxId.MuzzleDirect, spec.Origin, Quaternion.LookRotation(_direction), 0.22f);
+            }
 
             if (_projectileVfx != null)
             {
@@ -302,7 +305,8 @@ namespace RuneAshes.Gameplay
                     Lifetime = _spec.Lifetime * 0.6f,
                     Radius = _spec.Radius,
                     Meta = _spec.Meta,
-                    Modifiers = inherited
+                    Modifiers = inherited,
+                    IsSplit = true
                 });
             }
         }
