@@ -16,6 +16,17 @@ namespace RuneAshes.Gameplay
         /// <summary>同屏活跃的池化 VFX 上限；超过后丢弃低优先级新请求。</summary>
         public static int MaxActive = 48;
 
+        /// <summary>低配模式：降低同屏/每帧预算，用于性能基线和低端机。</summary>
+        public static bool LowQuality;
+
+        /// <summary>超过该距离的世界特效不再生成；0 = 不剔除。</summary>
+        public static float MaxDistance = 35f;
+
+        public static int ActiveCount
+        {
+            get { return _runtime == null ? 0 : _runtime.ActiveCount; }
+        }
+
         private static VfxCatalog _catalog;
         private static Transform _root;
         private static VfxPoolRuntime _runtime;
@@ -55,6 +66,13 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
+            var camera = Camera.main;
+            if (MaxDistance > 0f && camera != null &&
+                (position - camera.transform.position).sqrMagnitude > MaxDistance * MaxDistance)
+            {
+                return;
+            }
+
             var prefab = GetPrefab(id);
             if (prefab == null)
             {
@@ -70,7 +88,7 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
-            if (_runtime.ActiveCount >= Mathf.Max(1, MaxActive))
+            if (_runtime.ActiveCount >= Mathf.Max(1, LowQuality ? 24 : MaxActive))
             {
                 return;
             }
@@ -119,6 +137,7 @@ namespace RuneAshes.Gameplay
             var root = new GameObject("[VFX]");
             _root = root.transform;
             _runtime = root.AddComponent<VfxPoolRuntime>();
+            root.AddComponent<VfxPerfProbe>();
         }
 
         /// <summary>
@@ -250,7 +269,7 @@ namespace RuneAshes.Gameplay
                 _spawnedThisFrame = 0;
             }
 
-            if (_spawnedThisFrame >= MaxSpawnsPerFrame)
+            if (_spawnedThisFrame >= (LowQuality ? 8 : 16))
             {
                 return false;
             }

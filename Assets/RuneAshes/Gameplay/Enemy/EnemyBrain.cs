@@ -110,9 +110,25 @@ namespace RuneAshes.Gameplay
         private void Awake()
         {
             _controller = GetComponent<CharacterController>();
-            _animator = GetComponent<IEnemyAnimator>();
+            _animator = FindAnimator();
             _actor = GetComponent<EnemyActor>();
             _world = FindFirstObjectByType<UnityRuneWorld>();
+        }
+
+        private IEnemyAnimator FindAnimator()
+        {
+            var behaviours = GetComponents<MonoBehaviour>();
+            for (var i = 0; i < behaviours.Length; i++)
+            {
+                var animator = behaviours[i] as IEnemyAnimator;
+                if (animator != null)
+                {
+                    return animator;
+                }
+            }
+
+            // 没有动画的敌人（例如只做了骨骼的占位模型）也必须能跑 AI。
+            return new NullEnemyAnimator();
         }
 
         private void OnEnable()
@@ -533,6 +549,45 @@ namespace RuneAshes.Gameplay
 
             // 留 2 秒播死亡动画；W4 接溶解 Shader 后改成溶解结束再销毁。
             Destroy(gameObject, 2f);
+        }
+    }
+
+    /// <summary>没有动画的敌人（占位模型/只导入骨骼）使用的空适配器。</summary>
+    internal sealed class NullEnemyAnimator : IEnemyAnimator
+    {
+        public void SetLocomotion(float value01)
+        {
+        }
+
+        public void PlayAttack()
+        {
+        }
+
+        public void PlayHit()
+        {
+        }
+
+        public void PlayDeath()
+        {
+        }
+
+        public void PlayExplode()
+        {
+        }
+
+        public bool IsInAttackState()
+        {
+            return false;
+        }
+
+        public float CurrentNormalizedTime()
+        {
+            return 0f;
+        }
+
+        public float CurrentAttackImpactNormalized()
+        {
+            return 0.45f;
         }
     }
 }
