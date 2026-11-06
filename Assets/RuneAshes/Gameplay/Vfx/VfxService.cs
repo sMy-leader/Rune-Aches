@@ -10,6 +10,12 @@ namespace RuneAshes.Gameplay
 {
     public static class VfxService
     {
+        /// <summary>Profiler 对照/过载保护用；关闭后不再生成新 VFX。</summary>
+        public static bool Enabled = true;
+
+        /// <summary>同屏活跃的池化 VFX 上限；超过后丢弃低优先级新请求。</summary>
+        public static int MaxActive = 48;
+
         private static VfxCatalog _catalog;
         private static Transform _root;
         private static VfxPoolRuntime _runtime;
@@ -44,7 +50,7 @@ namespace RuneAshes.Gameplay
         public static void Play(VfxId id, Vector3 position, Quaternion rotation, Transform parent,
             float maxLifetime)
         {
-            if (!ConsumeBudget())
+            if (!Enabled || !ConsumeBudget())
             {
                 return;
             }
@@ -61,6 +67,11 @@ namespace RuneAshes.Gameplay
             if (parent != null)
             {
                 SpawnDirect(prefab, parent, position, rotation, maxLifetime, false);
+                return;
+            }
+
+            if (_runtime.ActiveCount >= Mathf.Max(1, MaxActive))
+            {
                 return;
             }
 
@@ -84,12 +95,20 @@ namespace RuneAshes.Gameplay
         public static GameObject PlayAttached(VfxId id, Transform parent, Vector3 localPosition,
             Quaternion localRotation, float maxLifetime)
         {
+            if (!Enabled)
+            {
+                return null;
+            }
+
             var prefab = GetPrefab(id);
             return prefab == null
                 ? null
                 : SpawnDirect(prefab, parent, localPosition, localRotation, maxLifetime, true);
         }
 
+        /// <summary>
+        /// 将 VFX 根对象挂到场景中，避免被 Destroy 污染池。
+        /// </summary>
         private static void EnsureRoot()
         {
             if (_root != null)
@@ -102,6 +121,11 @@ namespace RuneAshes.Gameplay
             _runtime = root.AddComponent<VfxPoolRuntime>();
         }
 
+        /// <summary>
+        /// 从池中获取一个实例，若没有可用实例则创建一个新实例。
+        /// </summary>
+        /// <param name="prefab"></param>
+        /// <returns></returns>
         private static VfxPooledInstance GetPooled(GameObject prefab)
         {
             Stack<VfxPooledInstance> pool;
@@ -150,7 +174,7 @@ namespace RuneAshes.Gameplay
                 Pools.Add(instance.Prefab, pool);
             }
 
-            pool.Push(instance);
+            pool.Push(instance);//压栈，下次取出时是最近使用的实例，避免频繁创建销毁
         }
 
         private static GameObject SpawnDirect(GameObject prefab, Transform parent, Vector3 position,
@@ -175,6 +199,11 @@ namespace RuneAshes.Gameplay
             return go;
         }
 
+        /// <summary>
+        /// 确保所有粒子系统都不循环播放，计算整个特效的最大持续时间。
+        /// </summary>
+        /// <param name="go"></param>
+        /// <returns></returns>
         internal static float ConfigureParticles(GameObject go)
         {
             var systems = go.GetComponentsInChildren<ParticleSystem>(true);
@@ -209,6 +238,10 @@ namespace RuneAshes.Gameplay
             return catalog != null ? catalog.Get(id) : null;
         }
 
+        /// <summary>
+        /// 为了避免在一帧内生成过多特效，限制每帧最多生成 MaxSpawnsPerFrame 个特效。
+        /// </summary>
+        /// <returns></returns>
         private static bool ConsumeBudget()
         {
             if (Time.frameCount != _frame)
@@ -255,6 +288,7 @@ namespace RuneAshes.Gameplay
                 _systems = GetComponentsInChildren<ParticleSystem>(true);
             }
 
+            //根据粒子系统的持续时间计算整个特效的最大持续时间，避免特效被提前回收
             gameObject.SetActive(true);
             _duration = VfxService.ConfigureParticles(gameObject);
             _duration = maxLifetime > 0f ? maxLifetime : Mathf.Min(_duration, 3f);
@@ -279,6 +313,7 @@ namespace RuneAshes.Gameplay
             return true;
         }
 
+        /// <summary>停止所有粒子系统并隐藏对象，准备回收。</summary>
         internal void StopAndHide()
         {
             _active = false;
@@ -301,6 +336,11 @@ namespace RuneAshes.Gameplay
     public sealed class VfxPoolRuntime : MonoBehaviour
     {
         private readonly List<VfxPooledInstance> _active = new List<VfxPooledInstance>();
+
+        internal int ActiveCount
+        {
+            get { return _active.Count; }
+        }
 
         internal void Register(VfxPooledInstance instance)
         {
