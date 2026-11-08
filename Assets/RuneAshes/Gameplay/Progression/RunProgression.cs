@@ -19,6 +19,12 @@ namespace RuneAshes.Gameplay
         /// <summary>4 槽 = 1 触发 + 1 效果 + 2 修饰。meta 扩槽后改这里。</summary>
         private const int MaxModifiers = 2;
 
+        /// <summary>已注册到 RuneEffectFactory 的效果；E6/E7 数据存在但原语未实现。</summary>
+        private static readonly HashSet<string> ImplementedEffects = new HashSet<string>
+        {
+            "E1", "E2", "E3", "E4", "E5"
+        };
+
         [SerializeField] private uint _seed = 20261029u;
 
         private RuneCaster _caster;
@@ -47,13 +53,23 @@ namespace RuneAshes.Gameplay
         private void Awake()
         {
             _caster = GetComponent<RuneCaster>();
+            EnsureInitialized();
+        }
 
-            var provider = new TableProvider();
-            provider.LoadAll();
-            _runes = provider.Runes;
+        private void EnsureInitialized()
+        {
+            if (_runes == null)
+            {
+                var provider = new TableProvider();
+                provider.LoadAll();
+                _runes = provider.Runes;
+            }
 
-            // 固定种子：同样的选择序列 → 同样的三选一，便于复现/测试。
-            _random = new XorShiftRandom(_seed);
+            if (_random == null)
+            {
+                // 固定种子：同样的选择序列 → 同样的三选一，便于复现/测试。
+                _random = new XorShiftRandom(_seed);
+            }
         }
 
         private void Start()
@@ -88,11 +104,13 @@ namespace RuneAshes.Gameplay
         }
 
         /// <summary>
-        /// 返回最多 count 个"装上后编译合法"的修饰候选。
+        /// 返回最多 count 个"装上后编译合法"的候选。
+        /// 候选覆盖 Trigger / Effect / Modifier；只排除未实现的 Effect。
         /// 槽位满时按替换最后一个修饰来预检；所以候选项永远可落地。
         /// </summary>
         public List<RuneDef> GetChoices(int count)
         {
+            EnsureInitialized();
             var result = new List<RuneDef>();
             if (_runes == null || count <= 0)
             {
@@ -100,18 +118,9 @@ namespace RuneAshes.Gameplay
             }
 
             var candidates = new List<RuneDef>();
-            foreach (var rune in _runes.ByCategory(RuneCategory.Modifier))
-            {
-                if (rune == null || _modifierIds.Contains(rune.Id))
-                {
-                    continue;
-                }
-
-                if (IsValidWith(rune.Id))
-                {
-                    candidates.Add(rune);
-                }
-            }
+            AddCandidates(candidates, RuneCategory.Trigger);
+            AddCandidates(candidates, RuneCategory.Effect);
+            AddCandidates(candidates, RuneCategory.Modifier);
 
             // Fisher-Yates：候选顺序随机，但不改变合法性。
             for (var i = candidates.Count - 1; i > 0; i--)
@@ -129,6 +138,42 @@ namespace RuneAshes.Gameplay
             }
 
             return result;
+        }
+
+        private void AddCandidates(List<RuneDef> candidates, RuneCategory category)
+        {
+            foreach (var rune in _runes.ByCategory(category))
+            {
+                if (rune == null || !IsImplemented(rune) || IsEquipped(rune))
+                {
+                    continue;
+                }
+
+                if (IsValidWith(rune))
+                {
+                    candidates.Add(rune);
+                }
+            }
+        }
+
+        private static bool IsImplemented(RuneDef rune)
+        {
+            return rune.Category != RuneCategory.Effect || ImplementedEffects.Contains(rune.Id);
+        }
+
+        private bool IsEquipped(RuneDef rune)
+        {
+            if (rune.Category == RuneCategory.Trigger)
+            {
+                return rune.Id == _triggerId;
+            }
+
+            if (rune.Category == RuneCategory.Effect)
+            {
+                return rune.Id == _effectId;
+            }
+
+            return _modifierIds.Contains(rune.Id);
         }
 
         /// <summary>应用一个符文；失败会回滚到选择前的状态。</summary>
@@ -213,30 +258,39 @@ namespace RuneAshes.Gameplay
         }
 
         /// <summary>
-        /// 判断修饰器数量等是否合法
+        /// 判断任意类别候选加入/替换后是否仍能编译。
         /// </summary>
-        /// <param name="modifierId"></param>
-        /// <returns></returns>
-        private bool IsValidWith(string modifierId)
+        private bool IsValidWith(RuneDef candidate)
         {
+            var trigger = _triggerId;
+            var effect = _effectId;
             var modifiers = new List<string>(_modifierIds);
-            if (modifiers.Count < MaxModifiers)
+
+            if (candidate.Category == RuneCategory.Trigger)
             {
-                modifiers.Add(modifierId);
+                trigger = candidate.Id;
+            }
+            else if (candidate.Category == RuneCategory.Effect)
+            {
+                effect = candidate.Id;
+            }
+            else if (modifiers.Count < MaxModifiers)
+            {
+                modifiers.Add(candidate.Id);
             }
             else if (modifiers.Count > 0)
             {
-                modifiers[modifiers.Count - 1] = modifierId;
+                modifiers[modifiers.Count - 1] = candidate.Id;
             }
             else
             {
-                modifiers.Add(modifierId);
+                modifiers.Add(candidate.Id);
             }
 
             var chain = new ChainCompiler(_runes).Compile(new ChainBlueprint
             {
-                TriggerId = _triggerId,
-                EffectId = _effectId,
+                TriggerId = trigger,
+                EffectId = effect,
                 ModifierIds = modifiers,
                 SlotLimit = RuneRules.SliceSlotLimit,
                 EnergyLimit = RuneRules.SliceEnergyLimit
