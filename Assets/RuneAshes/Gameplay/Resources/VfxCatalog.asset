@@ -42,3 +42,4 @@ MonoBehaviour:
   _dashTrail: {fileID: 295821143456275948, guid: 099329c04301db6479547baa7ff41867, type: 3}
   _levelUpRing: {fileID: 8394313812161080912, guid: 562595df720998e43bbe76945d76538b, type: 3}
   _levelUpColumn: {fileID: 6295428024138307411, guid: 6e60c422b27674840b322ec1ed521620, type: 3}
+  _auraLoop: {fileID: 3035246916149588909, guid: 8c0082bee8a4213409a3031b532ed375, type: 3}

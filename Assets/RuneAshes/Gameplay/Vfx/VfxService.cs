@@ -124,6 +124,45 @@ namespace RuneAshes.Gameplay
                 : SpawnDirect(prefab, parent, localPosition, localRotation, maxLifetime, true);
         }
 
+        /// <summary>持续挂在父物体上的循环特效（例如 T6 光环）；调用方负责 Destroy。</summary>
+        public static GameObject PlayLoopAttached(VfxId id, Transform parent, Vector3 localPosition)
+        {
+            if (!Enabled)
+            {
+                return null;
+            }
+
+            var prefab = GetPrefab(id);
+            if (prefab == null)
+            {
+                return null;
+            }
+
+            EnsureRoot();
+            var go = Object.Instantiate(prefab, parent);
+            go.name = prefab.name + " (VFX Loop)";
+            go.transform.localPosition = localPosition;
+            go.transform.localRotation = Quaternion.identity;
+            go.SetActive(true);
+
+            var systems = go.GetComponentsInChildren<ParticleSystem>(true);
+            for (var i = 0; i < systems.Length; i++)
+            {
+                if (systems[i] == null)
+                {
+                    continue;
+                }
+
+                var main = systems[i].main;
+                main.loop = true;
+                main.stopAction = ParticleSystemStopAction.None;
+                systems[i].Clear(true);
+                systems[i].Play(true);
+            }
+
+            return go;
+        }
+
         /// <summary>
         /// 将 VFX 根对象挂到场景中，避免被 Destroy 污染池。
         /// </summary>

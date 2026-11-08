@@ -30,6 +30,7 @@ namespace RuneAshes.Gameplay
         ProjectileHoming,
         ProjectileEnemyMagenta,
         ProjectileEnemyOrange,
+        AuraLoop,
         ExplosionSmall,
         ExplosionM6,
         BomberExplode,
@@ -77,6 +78,7 @@ namespace RuneAshes.Gameplay
         [SerializeField] private GameObject _dashTrail;
         [SerializeField] private GameObject _levelUpRing;
         [SerializeField] private GameObject _levelUpColumn;
+        [SerializeField] private GameObject _auraLoop;
 
         public GameObject Get(VfxId id)
         {
@@ -118,6 +120,7 @@ namespace RuneAshes.Gameplay
                 case VfxId.DashTrail: return _dashTrail;
                 case VfxId.LevelUpRing: return _levelUpRing;
                 case VfxId.LevelUpColumn: return _levelUpColumn;
+                case VfxId.AuraLoop: return _auraLoop;
                 default: return null;
             }
         }

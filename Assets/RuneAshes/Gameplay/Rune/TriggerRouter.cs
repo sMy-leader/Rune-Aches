@@ -39,6 +39,7 @@ namespace RuneAshes.Gameplay
         private float _lastHitTime = -999f;
         private float _lastInjuryTime = -999f;
         private float _auraTimer;
+        private GameObject _auraVfx;
 
         private void Awake()
         {
@@ -66,6 +67,8 @@ namespace RuneAshes.Gameplay
 
         private void OnDisable()
         {
+            DestroyAura();
+
             if (_world == null)
             {
                 return;
@@ -82,6 +85,7 @@ namespace RuneAshes.Gameplay
         {
             if (!IsTrigger("T6"))
             {
+                DestroyAura();
                 // 切走 T6 时清掉计时，切回来不会立刻炸一次。
                 _auraTimer = 0f;
                 return;
@@ -91,6 +95,8 @@ namespace RuneAshes.Gameplay
             {
                 return;
             }
+
+            EnsureAura();
 
             _auraTimer += Time.deltaTime;
             if (_auraTimer < _auraInterval)
@@ -177,7 +183,7 @@ namespace RuneAshes.Gameplay
                 return;
             }
 
-            var direction = _player != null ? _player.LastDashDirection : transform.forward;
+            var direction = AimDirection;
             _caster.CastFromEvent(direction, 1);////确定触发器后调用 RuneCaster 的 CastFromEvent 方法，传入施法方向和深度
         }
 
@@ -226,6 +232,23 @@ namespace RuneAshes.Gameplay
         {
             return _caster != null && _caster.Chain != null &&
                    _caster.Chain.Trigger != null && _caster.Chain.Trigger.Id == id;
+        }
+
+        private void EnsureAura()
+        {
+            if (_auraVfx == null)
+            {
+                _auraVfx = VfxService.PlayLoopAttached(VfxId.AuraLoop, transform, Vector3.zero);
+            }
+        }
+
+        private void DestroyAura()
+        {
+            if (_auraVfx != null)
+            {
+                UnityEngine.Object.Destroy(_auraVfx);
+                _auraVfx = null;
+            }
         }
     }
 }

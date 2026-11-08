@@ -66,6 +66,7 @@ namespace RuneAshes.Editor
             Set(so, "_dashTrail", Root + "Player/VFX_Dash_Trail_Cyan_01.prefab");
             Set(so, "_levelUpRing", Root + "LevelUp/VFX_LevelUp_Ring_01.prefab");
             Set(so, "_levelUpColumn", Root + "LevelUp/VFX_LevelUp_Column_01.prefab");
+            Set(so, "_auraLoop", Root + "Status/VFX_Status_Shield_Loop_01.prefab");
 
             so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(catalog);
